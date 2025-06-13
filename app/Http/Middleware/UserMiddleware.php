@@ -16,10 +16,17 @@ class UserMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (Auth::user()->usertype == 'user') {
+        /** @var \App\Models\User|\Illuminate\Contracts\Auth\MustVerifyEmail $user */
+        $user = Auth::user();
+
+        if ($user && $user->usertype === 'user') {
+            if (!$user->hasVerifiedEmail()) {
+                return redirect()->route('verification.notice');
+            }
+
             return $next($request);
         }
-        
+
         return redirect()->back();
     }
 }

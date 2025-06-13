@@ -6,9 +6,9 @@
 
     <!-- Botón de Google Sign-In -->
     <div class="flex justify-center mb-4">
-        <a href="" class="w-full flex items-center justify-center gap-2 bg-white border border-gray-300 text-gray-800 py-2 rounded hover:bg-gray-100 shadow">
+        <a href="{{ route('google.redirect') }}" class="w-full flex items-center justify-center gap-2 bg-white border border-gray-300 text-gray-800 py-2 rounded hover:bg-gray-100 shadow">
             <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google" class="w-5 h-5">
-            Registrar com Google
+            Registre-se no Google
         </a>
     </div>
 
@@ -25,19 +25,19 @@
         <!-- Email -->
         <div class="mb-4">
             <x-text-input id="email" placeholder="E-mail" class="block mt-1 w-full" type="email" name="email" :value="old('email')"  autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
+            <x-input-error :messages="$errors->get('email')" class="mt-2 mx-2" />
         </div>
 
         <!-- Password -->
         <div class="mb-4">
             <x-text-input id="password" placeholder="Senha" class="block mt-1 w-full" type="password" name="password"  autocomplete="new-password" />
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
+            <x-input-error :messages="$errors->get('password')" class="mt-2 mx-2" />
         </div>
 
         <!-- Confirm Password -->
         <div class="mb-6">
             <x-text-input id="password_confirmation" placeholder="Confirme sua senha" class="block mt-1 w-full" type="password" name="password_confirmation"  autocomplete="new-password" />
-            <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
+            <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2 mx-2" />
         </div>
 
         <!-- Already registered -->

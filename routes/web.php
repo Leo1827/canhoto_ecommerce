@@ -28,21 +28,15 @@ Route::middleware('auth')->group(function () {
 
 require __DIR__.'/auth.php';
 
-// user routes
-Route::middleware(['auth','userMiddleware'])->group(function(){
-
-    
-    Route::get('dashboard',[UserController::class,'index'])->name('dashboard');
-
+Route::middleware(['auth', 'verified', 'userMiddleware'])->group(function() {
+    Route::get('dashboard', [UserController::class, 'index'])->name('dashboard');
 });
+
 
 // admin routes
 Route::middleware(['auth','adminMiddleware'])->group(function(){
 
     Route::get('/admin/dashboard',[AdminController::class,'index'])->name('admin.dashboard');
-
-   
-
 
 
 });

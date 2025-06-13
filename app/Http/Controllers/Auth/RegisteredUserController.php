@@ -39,10 +39,12 @@ class RegisteredUserController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        event(new Registered($user));
+        event(new Registered($user)); // Esto dispara el email de verificación
 
         Auth::login($user);
 
-        return redirect(route('dashboard', absolute: false));
+        // Aquí es el cambio importante:
+        return redirect()->route('verification.notice');
     }
+
 }

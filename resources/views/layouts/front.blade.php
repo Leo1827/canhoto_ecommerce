@@ -28,7 +28,6 @@
     <body class="font-sans bg-[#000] text-white antialiased">
         
         {{-- include nav--}}
-        @include('layouts.nav')
 
         {{-- content --}}
         @yield('content')
