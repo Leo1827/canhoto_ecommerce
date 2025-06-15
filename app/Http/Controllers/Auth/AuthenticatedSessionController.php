@@ -24,15 +24,28 @@ class AuthenticatedSessionController extends Controller
      */
     public function store(LoginRequest $request): RedirectResponse
     {
-        $request->authenticate();
+    $request->authenticate();
 
-        $request->session()->regenerate();
+    $request->session()->regenerate();
 
-        if (Auth::user()->usertype == 'admin') {
-            return redirect(route('admin.dashboard', absolute: false));
-        }
+    // Asegura que esté correctamente autenticado
+    $user = Auth::user();
 
-        return redirect()->intended(route('dashboard', absolute: false));
+    if (!$user) {
+        return redirect()->route('login')->withErrors('No se pudo autenticar el usuario.');
+    }
+
+    // Validar tipo de usuario
+    if ($user->usertype === 'admin') {
+        return redirect()->route('admin.dashboard');
+    }
+    /** @var \App\Models\User $user */
+    // Validar suscripción activa
+    if (!$user->hasActiveSubscription()) {
+        return redirect()->route('plan.index');
+    }
+
+    return redirect()->intended(route('dashboard'));
     }
 
     /**

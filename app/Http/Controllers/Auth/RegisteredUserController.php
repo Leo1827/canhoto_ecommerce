@@ -30,7 +30,7 @@ class RegisteredUserController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
@@ -39,11 +39,20 @@ class RegisteredUserController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        event(new Registered($user)); // Esto dispara el email de verificación
+        event(new Registered($user));
 
         Auth::login($user);
 
-        // Aquí es el cambio importante:
+        // Si ya verificó el email (raro en registro, pero se previene)
+        if ($user->hasVerifiedEmail()) {
+            if (method_exists($user, 'hasActiveSubscription') && $user->hasActiveSubscription()) {
+                return redirect()->route('dashboard');
+            } else {
+                return redirect()->route('plan.index');
+            }
+        }
+
+        // Si no verificó email aún, lo llevamos al aviso como siempre
         return redirect()->route('verification.notice');
     }
 

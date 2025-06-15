@@ -25,7 +25,7 @@
 
     </head>
     {{-- Color de fondo add --}}
-    <body class="font-sans bg-[#000] text-white antialiased">
+    <body class="font-sans  text-white antialiased">
         
         {{-- include nav--}}
 
