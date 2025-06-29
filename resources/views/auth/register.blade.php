@@ -1,5 +1,4 @@
 <x-guest-layout>
-    <h1 class="text-center text-xl font-semibold mb-4">Garrafeira Canhoto</h1>
     
     <h2 class="text-lg font-bold mb-2">Criar conta</h2>
     <p class="text-sm text-gray-600 mb-6">Escolha como pretende criar a sua conta</p>

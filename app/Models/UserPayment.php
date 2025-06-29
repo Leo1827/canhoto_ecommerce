@@ -10,13 +10,13 @@ class UserPayment extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name', 
-        'stripe_id',
-        'price',
-        'interval',
-        'features',
-        'is_active',
-        'order'
+        'user_id',
+        'payment_id',
+        'method',
+        'amount',
+        'currency_id',
+        'status',
+        'metadata',
     ];
 
     protected $casts = [

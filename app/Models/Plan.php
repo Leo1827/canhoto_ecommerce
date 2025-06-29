@@ -16,13 +16,19 @@ class Plan extends Model
         'interval',
         'features',
         'is_active',
-        'order'
+        'order',
+        'currency_id',
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
         'price' => 'decimal:2'
     ];
+
+    public function currency()
+    {
+        return $this->belongsTo(Currency::class);
+    }
 
     public function subscriptions()
     {

@@ -16,6 +16,11 @@ class Currency extends Model
         'rate' => 'float'
     ];
 
+    public function format($amount)
+    {
+        return $this->symbol . number_format($amount, 2);
+    }
+
     public function userPayments()
     {
         return $this->hasMany(UserPayment::class);

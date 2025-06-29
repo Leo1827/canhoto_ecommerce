@@ -9,20 +9,12 @@ use Illuminate\Notifications\Notifiable;
 use App\Notifications\CustomVerifyEmail;
 use App\Notifications\CustomResetPassword;
 use Laravel\Cashier\Billable;
-/**
- * @method bool hasActiveSubscription()
- */
+
 class User extends Authenticatable implements MustVerifyEmail
 {
     use Billable;
-    /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
     protected $fillable = [
         'name',
         'email',
@@ -31,21 +23,11 @@ class User extends Authenticatable implements MustVerifyEmail
         'email_verified_at',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [
@@ -64,28 +46,53 @@ class User extends Authenticatable implements MustVerifyEmail
         $this->notify(new CustomResetPassword($token));
     }
 
-     public function payments()
+    // Relación con pagos
+    public function payments()
     {
         return $this->hasMany(UserPayment::class);
     }
 
+    // Relación general con suscripciones
     public function subscriptions()
     {
         return $this->hasMany(Subscription::class);
     }
 
-    public function activeSubscription()
+    // Relación activa para Eloquent (se puede usar en with())
+    public function activeSubscriptionRelation()
     {
         return $this->hasOne(Subscription::class)
-            ->where(function($query) {
-                $query->where('stripe_status', 'active')
-                      ->where(function($q) {
-                          $q->whereNull('ends_at')
-                            ->orWhere('ends_at', '>', now());
-                      });
+            ->where('stripe_status', 'COMPLETED')
+            ->where(function($q) {
+                $q->whereNull('ends_at')
+                  ->orWhere('ends_at', '>', now());
             });
     }
 
+    // Esta es la relación para usar con Eloquent (ej: with('activeSubscription'))
+    public function activeSubscription()
+    {
+        return $this->hasOne(Subscription::class)
+            ->where('stripe_status', 'COMPLETED')
+            ->where(function ($q) {
+                $q->whereNull('ends_at')
+                ->orWhere('ends_at', '>', now());
+            });
+    }
+
+    // Esta es una función auxiliar que devuelve la suscripción activa
+    public function getActiveSubscription()
+    {
+        return $this->activeSubscription()->first();
+    }
+
+    // Booleano para saber si tiene suscripción activa
+    public function hasActiveSubscription()
+    {
+        return $this->getActiveSubscription() !== null;
+    }
+
+    // Relación con historial de suscripciones
     public function subscriptionHistory()
     {
         return $this->hasManyThrough(
@@ -93,11 +100,4 @@ class User extends Authenticatable implements MustVerifyEmail
             Subscription::class
         );
     }
-
-    public function hasActiveSubscription()
-    {
-        return $this->activeSubscription()->exists();
-    }
-
-
 }

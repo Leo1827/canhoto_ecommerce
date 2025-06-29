@@ -9,10 +9,19 @@ class PaymentMethod extends Model
     //
     use HasFactory;
 
-    protected $fillable = ['name', 'code', 'driver', 'is_active', 'config'];
+    protected $fillable = ['name',
+        'code',
+        'driver',
+        'icon',
+        'is_express',
+        'order',
+        'is_active',
+        'config',
+    ];
 
     protected $casts = [
         'is_active' => 'boolean',
+        'is_express' => 'boolean',
         'config' => 'array'
     ];
 

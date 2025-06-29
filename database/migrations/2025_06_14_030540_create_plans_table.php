@@ -20,6 +20,7 @@ return new class extends Migration
             $table->text('features'); // Lista de características separadas por comas
             $table->boolean('is_active')->default(true);
             $table->integer('order')->default(0); // Para ordenar los planes
+            $table->foreignId('currency_id')->constrained('currencies'); // Nueva relación
             $table->timestamps();
         });
     }

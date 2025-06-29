@@ -1,7 +1,6 @@
 <nav class="flex items-center justify-between px-6 py-4 border-b bg-white shadow-sm">
     <div>
-        <p class="text-lg font-semibold text-gray-800">Hola</p>
-        <p class="text-sm text-gray-500">Administrador</p>
+        
     </div>
 
     <div class="flex items-center space-x-4">

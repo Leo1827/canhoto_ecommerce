@@ -18,6 +18,9 @@ return new class extends Migration
             $table->string('driver')->nullable(); // Driver para procesamiento
             $table->boolean('is_active')->default(true);
             $table->json('config')->nullable(); // Configuración específica
+            $table->string('icon')->nullable();         // Ruta al ícono que se muestra en el frontend
+            $table->boolean('is_express')->default(false); // Si se muestra como opción rápida arriba
+            $table->integer('order')->default(0);       // Para ordenar los métodos visualmente
             $table->timestamps();
         });
     }

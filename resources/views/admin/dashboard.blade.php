@@ -8,6 +8,12 @@
 </head>
 <body class="flex">
 
+    <!-- Preloader -->
+    <div id="preloader" class="fixed inset-0 bg-white z-50 flex items-center justify-center">
+        <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-500"></div>
+    </div>
+
+
     @include('admin.layout.sidebar')
 
     <div class="flex-1 flex flex-col min-h-screen">
@@ -21,6 +27,15 @@
 
         @include('admin.layout.footer')
     </div>
+
+    <script>
+        // Ocultar el preloader cuando el contenido esté listo
+        window.addEventListener('load', () => {
+            const loader = document.getElementById('preloader');
+            loader.style.opacity = '0';
+            setTimeout(() => loader.style.display = 'none', 300);
+        });
+    </script>
 
 </body>
 </html>

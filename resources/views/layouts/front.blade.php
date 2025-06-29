@@ -15,13 +15,17 @@
 
         {{-- Style --}}
         @yield('style')
+        @stack('styles')
+
 
         {{-- Fonts --}}
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link rel="stylesheet" href="https://fonts.bunny.net/css\family=figtree:400,500,600&display=s">
 
+ 
         {{-- Script  --}}
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+
 
     </head>
     {{-- Color de fondo add --}}
@@ -36,6 +40,8 @@
         @yield('script')
 
         @include('layouts.footer')
+
+        @stack('scripts')
 
     </body>
 </html>

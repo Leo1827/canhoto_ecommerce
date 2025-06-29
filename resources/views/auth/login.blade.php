@@ -2,7 +2,7 @@
     <!-- Session Status -->
     <x-auth-session-status class="" :status="session('status')" />
 
-    <h2 class="text-lg font-bold mb-2">Acesso</h2>
+    <h2 class="text-lg font-bold mb-2 ">Acesso</h2>
     <p class="text-sm text-gray-600 mb-6">Escolha como você deseja iniciar sua conta</p>
 
     <!-- Botón de Google Sign-In -->
