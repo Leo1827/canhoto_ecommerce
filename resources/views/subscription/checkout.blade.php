@@ -9,8 +9,19 @@
 @endsection
 
 @section('content')
+    @if(session('error'))
+        <div class="max-w-4xl mx-auto my-4 px-4 py-3 rounded-xl bg-red-100 border border-red-400 text-red-700">
+            <strong>❌ Error:</strong> {{ session('error') }}
+        </div>
+    @endif
 
-@include('subscription.partials.logout-button')
+    @if(session('success'))
+        <div class="max-w-4xl mx-auto my-4 px-4 py-3 rounded-xl bg-green-100 border border-green-400 text-green-700">
+            <strong>✅ Éxito:</strong> {{ session('success') }}
+        </div>
+    @endif
+
+    @include('subscription.partials.logout-button')
 
 <form method="POST" action="" class="max-w-4xl mx-auto px-4 py-32 bg-white text-gray-800 rounded-xl ">
     @csrf

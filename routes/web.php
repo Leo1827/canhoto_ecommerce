@@ -30,12 +30,12 @@ Route::middleware(['auth', 'verified'])->post('/paypal/webhook', [SubscriptionPa
 Route::middleware(['auth', 'verified'])->post('/stripe/checkout', [SuscriptionStripeController::class, 'createStripeCheckout'])->name('stripe.checkout');
 Route::middleware(['auth', 'verified'])->get('/stripe/success', [SuscriptionStripeController::class, 'stripeSuccess'])->name('stripe.success');
 Route::middleware(['auth', 'verified'])->get('/stripe/cancel', [SuscriptionStripeController::class, 'stripeCancel'])->name('stripe.cancel');
-Route::middleware(['auth', 'verified'])->post('/webhook/stripe', [SuscriptionStripeController::class, 'stripeWebhook'])->name('stripe.webhook');
+// Route::post('/stripe/webhook', [SuscriptionStripeController::class, 'stripeWebhook'])->name('stripe.webhook');
 
 // mollie
 Route::middleware(['auth', 'verified'])->post('/mollie/checkout', [SubscriptionMollieController::class, 'createMollieCheckout'])->name('mollie.checkout');
 Route::middleware(['auth', 'verified'])->get('/mollie/success', [SubscriptionMollieController::class, 'mollieSuccess'])->name('mollie.success');
-Route::middleware(['auth', 'verified'])->post('/mollie/webhook', [SubscriptionMollieController::class, 'mollieWebhook'])->name('mollie.webhook');
+Route::post('/mollie/webhook', [SubscriptionMollieController::class, 'mollieWebhook'])->name('mollie.webhook'); // Webhooks nunca llevan middleware de auth
 
 
 require __DIR__.'/auth.php';
