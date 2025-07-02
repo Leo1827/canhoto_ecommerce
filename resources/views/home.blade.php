@@ -10,36 +10,55 @@
 
     {{-- Navbar --}}
     <nav id="navbar"
-         class="fixed top-0 left-0 right-0 flex justify-center items-center px-6 md:px-10 py-5 z-20">
+        class="fixed top-0 left-0 right-0 flex justify-center items-center px-6 md:px-10 py-5 z-20">
 
         <div class="flex items-center space-x-14">
 
             {{-- Menú izquierdo (solo desktop) --}}
             <ul class="hidden md:flex space-x-10 text-sm uppercase tracking-widest text-gray-700">
-                <li><a href="#vinho" class="hover:text-black">Historia</a></li>
+                <li><a href="#vinho" class="hover:text-black">História</a></li>
                 <li><a href="#contato" class="hover:text-black">Contato</a></li>
             </ul>
 
             {{-- Logo --}}
             <div class="text-2xl font-serif font-semibold text-gray-900">
-                <a href="#home">
+                <a href="/">
                     <img src="{{ asset('img/logoblack.png') }}" alt="Canhoto Premium" class="w-[200px]">
                 </a>
             </div>
 
             {{-- Menú derecho (solo desktop) --}}
             <ul class="hidden md:flex space-x-10 text-sm uppercase tracking-widest text-gray-700">
-                <li><a href="{{ route('login') }}" class="hover:text-black">Conecte-se</a></li>
-                <li><a href="{{ route('register') }}" class="hover:text-black">Registar</a></li>
+                @auth
+                    @if(Auth::user()->usertype == 'user')
+                        <li><a href="{{ route('dashboard') }}" class="hover:text-black">Loja</a></li>
+                        <li><a href="{{ route('profile.edit') }}" class="hover:text-black">Perfil</a></li>
+                    @elseif(Auth::user()->usertype == 'admin')
+                        <li><a href="{{ route('admin.dashboard') }}" class="hover:text-black">Administração</a></li>
+                        <li><a href="{{ route('profile.edit') }}" class="hover:text-black">Perfil</a></li>
+                    @endif
+                    <li>
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <a href="{{ route('logout') }}" class="hover:text-black"
+                            onclick="event.preventDefault();this.closest('form').submit();">
+                                Sair
+                            </a>
+                        </form>
+                    </li>
+                @else
+                    <li><a href="{{ route('login') }}" class="hover:text-black">Conecte-se</a></li>
+                    <li><a href="{{ route('register') }}" class="hover:text-black">Registar</a></li>
+                @endauth
             </ul>
 
             {{-- Botón hamburguesa (solo mobile) --}}
             <div class="md:hidden">
                 <button id="menu-btn" class="text-gray-800 focus:outline-none">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none"
-                         viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round"
-                              d="M4 6h16M4 12h16M4 18h16"/>
+                            d="M4 6h16M4 12h16M4 18h16"/>
                     </svg>
                 </button>
             </div>
@@ -47,16 +66,55 @@
     </nav>
 
     {{-- Menu mobile desplegable --}}
+    <!-- Menú Mobile Desplegable -->
     <div id="mobile-menu"
-         class="hidden md:hidden fixed top-20 right-6 bg-white shadow-lg rounded-xl px-6 py-4 z-30">
-        <a href="#historia"
-           class="block py-2 text-sm uppercase tracking-widest text-gray-700 hover:text-black">Historia</a>
-        <a href="#contato"
-           class="block py-2 text-sm uppercase tracking-widest text-gray-700 hover:text-black">Contato</a>
-        <a href="{{ route('login') }}"
-           class="block py-2 text-sm uppercase tracking-widest text-gray-700 hover:text-black">Conectse-se</a>
-        <a href="#contato"
-           class="block py-2 text-sm uppercase tracking-widest text-gray-700 hover:text-black">Registar</a>
+        class="hidden fixed top-20 left-6 right-6 bg-white bg-opacity-90 backdrop-blur-md shadow-2xl rounded-3xl px-8 py-6 z-50">
+
+        <ul class="space-y-4 text-center">
+            <li><a href="#vinho"
+                class="block text-sm uppercase tracking-widest text-gray-800 hover:text-[#4B0D0D] font-medium">
+                História</a></li>
+            <li><a href="#contato"
+                class="block text-sm uppercase tracking-widest text-gray-800 hover:text-[#4B0D0D] font-medium">
+                Contato</a></li>
+
+            @auth
+                @if(Auth::user()->usertype == 'user')
+                    <li><a href="{{ route('dashboard') }}"
+                        class="block text-sm uppercase tracking-widest text-gray-800 hover:text-[#4B0D0D] font-medium">
+                        Loja</a></li>
+                    <li><a href="{{ route('profile.edit') }}"
+                        class="block text-sm uppercase tracking-widest text-gray-800 hover:text-[#4B0D0D] font-medium">
+                        Perfil</a></li>
+                @elseif(Auth::user()->usertype == 'admin')
+                    <li><a href="{{ route('admin.dashboard') }}"
+                        class="block text-sm uppercase tracking-widest text-gray-800 hover:text-[#4B0D0D] font-medium">
+                        Administração</a></li>
+                    <li><a href="{{ route('profile.edit') }}"
+                        class="block text-sm uppercase tracking-widest text-gray-800 hover:text-[#4B0D0D] font-medium">
+                        Perfil</a></li>
+                @endif
+
+                <li>
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <a href="{{ route('logout') }}"
+                        class="block text-sm uppercase tracking-widest text-[#9B1C1C] hover:text-[#7C1616] font-semibold"
+                        onclick="event.preventDefault();this.closest('form').submit();">
+                            Sair
+                        </a>
+                    </form>
+                </li>
+
+            @else
+                <li><a href="{{ route('login') }}"
+                    class="block text-sm uppercase tracking-widest text-gray-800 hover:text-[#4B0D0D] font-medium">
+                    Conecte-se</a></li>
+                <li><a href="{{ route('register') }}"
+                    class="block text-sm uppercase tracking-widest text-gray-800 hover:text-[#4B0D0D] font-medium">
+                    Registar</a></li>
+            @endauth
+        </ul>
     </div>
 
     {{-- Contenido central --}}

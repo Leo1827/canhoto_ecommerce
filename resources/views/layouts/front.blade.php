@@ -17,22 +17,33 @@
         @yield('style')
         @stack('styles')
 
-
         {{-- Fonts --}}
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link rel="stylesheet" href="https://fonts.bunny.net/css\family=figtree:400,500,600&display=s">
 
- 
         {{-- Script  --}}
         @vite(['resources/css/app.css', 'resources/js/app.js'])
-
-
+        {{-- preloader-link --}}
+        <link rel="stylesheet" href="{{ asset('static/css/style-home.css') }}">
     </head>
     {{-- Color de fondo add --}}
     <body class="font-sans  text-white antialiased">
         
-        {{-- include nav--}}
-
+        <!-- Preloader -->
+        <div id="preloader">
+            <div class="loader">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+        <!-- Script Preloader -->
+        <script>
+            window.addEventListener('load', () => {
+                const preloader = document.getElementById('preloader');
+                preloader.classList.add('fade-out');
+            });
+        </script>
         {{-- content --}}
         @yield('content')
 
@@ -42,6 +53,6 @@
         @include('layouts.footer')
 
         @stack('scripts')
-
+        
     </body>
 </html>

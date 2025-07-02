@@ -40,8 +40,5 @@
             ></div>
         @endforeach
 
-        <div class="text-center text-gray-400 mt-2">
-            ou continue com cartão ou conta
-        </div>
     </div>
 @endif

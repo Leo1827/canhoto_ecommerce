@@ -16,6 +16,7 @@ use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\SubscriptionPagoController;
 use App\Http\Controllers\SuscriptionStripeController;
 use App\Http\Controllers\SubscriptionMollieController;
+use App\Http\Controllers\ProductController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -41,7 +42,9 @@ Route::post('/mollie/webhook', [SubscriptionMollieController::class, 'mollieWebh
 require __DIR__.'/auth.php';
 // User
 Route::middleware(['auth', 'verified', 'userMiddleware', 'hasPlan'])->group(function () {
-    Route::get('dashboard', [UserController::class, 'index'])->name('dashboard');
+    Route::get('store', [ProductController::class, 'index'])->name('dashboard');
+    // Ruta del detalle del producto
+    Route::get('store/product/{id}', [ProductController::class, 'show'])->name('products.show');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
