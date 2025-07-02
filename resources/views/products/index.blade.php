@@ -42,7 +42,7 @@
                 </div>
 
                 <div class="flex items-center justify-between">
-                    <span class="text-3xl font-bold text-[#FCD9D9]">$1.200</span>
+                    <span class="text-3xl font-bold text-[#FCD9D9]">$10.000</span>
                     <a href="{{ route('products.show', 'veridico-1900') }}"
                     class="inline-flex items-center px-5 py-1.5 bg-[#9B1C1C] hover:bg-[#7C1616] rounded-xl text-sm text-white font-semibold transition">
                         Ver Detalles
@@ -72,7 +72,7 @@
                 </p>
 
                 <div class="flex items-center justify-between">
-                    <span class="text-3xl font-bold text-[#FCD9D9]">$950</span>
+                    <span class="text-3xl font-bold text-[#FCD9D9]">$3000</span>
                     <a href="#"
                     class="inline-flex items-center px-5 py-1.5 bg-[#9B1C1C] hover:bg-[#7C1616] rounded-xl text-sm text-white font-semibold transition">
                         Ver Detalles

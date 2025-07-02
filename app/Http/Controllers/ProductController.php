@@ -19,7 +19,7 @@ class ProductController extends Controller
             'veridico-1900' => [
                 'name' => 'Verídico 1900',
                 'image' => 'product1.jpeg',
-                'price' => 1200,
+                'price' => 10000,
                 'region' => 'Douro',
                 'year' => 2023,
                 'label' => 'Vino de Autor',
