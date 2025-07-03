@@ -21,7 +21,7 @@
                 class="block px-4 py-2 text-sm text-[#4B0D0D] hover:bg-[#F9F4F4]">
                 Meus Pedidos
             </a>
-            <form method="POST">
+            <form method="POST" action="{{ route('logout') }}">
                 @csrf
                 <button type="submit"
                     class="w-full text-left px-4 py-2 text-sm text-[#9B1C1C] hover:bg-[#F9F4F4] rounded-b-xl">
