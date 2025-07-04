@@ -13,7 +13,7 @@
 </li>
 
 <!-- GESTÃO DE ASSINATURAS -->
-<li class="text-xs mx-3 py-2 font-bold uppercase text-gray-800 mt-6 mb-2 tracking-wide">
+<li class="text-xs mx-2 py-2 font-bold uppercase text-gray-800 mt-6 mb-2 tracking-wide">
     <span class="p-4">Gestão de Assinaturas</span>
 </li>
 

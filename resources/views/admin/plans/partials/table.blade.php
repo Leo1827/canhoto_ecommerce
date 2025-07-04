@@ -13,7 +13,7 @@
         @foreach ($plans as $plan)
             <tr class="border-t hover:bg-gray-50">
                 <td class="px-4 py-2">{{ $plan->name }}</td>
-                <td class="px-4 py-2">${{ number_format($plan->price, 2) }}</td>
+                <td class="px-4 py-2">{{ number_format($plan->price, 2) }}</td>
                 <td class="px-4 py-2">{{ ucfirst($plan->interval) }}</td>
 
                 {{-- Switch de activación/desactivación --}}
