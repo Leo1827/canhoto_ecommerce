@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\RegionController;
 use App\Http\Controllers\Admin\WineTypeController;
 use App\Http\Controllers\Admin\VintageController;
 use App\Http\Controllers\Admin\ConditionController;
+use App\Http\Controllers\ProductController;
 // public
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -22,7 +23,7 @@ use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\SubscriptionPagoController;
 use App\Http\Controllers\SuscriptionStripeController;
 use App\Http\Controllers\SubscriptionMollieController;
-use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ProductUserController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -48,9 +49,9 @@ Route::post('/mollie/webhook', [SubscriptionMollieController::class, 'mollieWebh
 require __DIR__.'/auth.php';
 // User
 Route::middleware(['auth', 'verified', 'userMiddleware', 'hasPlan'])->group(function () {
-    Route::get('store', [ProductController::class, 'index'])->name('dashboard');
+    Route::get('store', [ProductUserController::class, 'index'])->name('dashboard');
     // Ruta del detalle del producto
-    Route::get('store/product/{id}', [ProductController::class, 'show'])->name('products.show');
+    Route::get('store/product/{id}', [ProductUserController::class, 'show'])->name('products.show');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -133,16 +134,27 @@ Route::middleware(['auth','adminMiddleware'])->group(function(){
         Route::delete('safras/{vintage}', [VintageController::class, 'destroy'])->name('vintages.destroy');
 
     // CRUD Conditions
-        Route::get('condicoes', [ConditionController::class, 'index'])->name('conditions.index');
-        Route::post('condicoes', [ConditionController::class, 'store'])->name('conditions.store');
-        Route::get('condicoes/{condition}/editar', [ConditionController::class, 'edit'])->name('conditions.edit');
-        Route::put('condicoes/{condition}', [ConditionController::class, 'update'])->name('conditions.update');
-        Route::delete('condicoes/{condition}', [ConditionController::class, 'destroy'])->name('conditions.destroy');
+        Route::get('admin/condicoes', [ConditionController::class, 'index'])->name('conditions.index');
+        Route::post('admin/condicoes', [ConditionController::class, 'store'])->name('conditions.store');
+        Route::get('admin/condicoes/{condition}/editar', [ConditionController::class, 'edit'])->name('conditions.edit');
+        Route::put('admin/condicoes/{condition}', [ConditionController::class, 'update'])->name('conditions.update');
+        Route::delete('admin/condicoes/{condition}', [ConditionController::class, 'destroy'])->name('conditions.destroy');
 
-    // CRUD Productos
-    Route::get('/products', [ProductController::class, 'index'])->name('products.index');
-    Route::post('/products', [ProductController::class, 'store'])->name('products.store');
-    Route::get('/products/{product}/edit', [ProductController::class, 'edit'])->name('products.edit');
-    Route::put('/products/{product}', [ProductController::class, 'update'])->name('products.update');
-    Route::delete('/products/{product}', [ProductController::class, 'destroy'])->name('products.destroy');
+    // CRUD Products
+        Route::get('admin/produtos', [ProductController::class, 'index'])->name('products.index');
+        Route::get('admin/produtos/criar', [ProductController::class, 'create'])->name('products.create');
+        Route::post('admin/produtos', [ProductController::class, 'store'])->name('products.store');
+        Route::get('admin/produtos/{product}/editar', [ProductController::class, 'edit'])->name('products.edit');
+        Route::put('admin/produtos/{product}', [ProductController::class, 'update'])->name('products.update');
+        Route::delete('admin/produtos/{product}', [ProductController::class, 'destroy'])->name('products.destroy');
+            // product gallery
+        Route::post('/admin/products/{product}/gallery', [ProductController::class, 'uploadGalleryImage'])->name('products.gallery.upload');
+        Route::delete('/admin/products/gallery/{gallery}', [ProductController::class, 'deleteGalleryImage'])->name('products.gallery.destroy');
+            // Lixeira / Soft Deletes
+        Route::get('produtos/lixeira', [ProductController::class, 'trash'])->name('products.trash');
+        Route::put('produtos/{id}/restaurar', [ProductController::class, 'restore'])->name('products.restore');
+        Route::delete('produtos/{id}/excluir-definitivamente', [ProductController::class, 'forceDelete'])->name('products.forceDelete');
+            // disabled and enable product
+        Route::patch('/admin/product/{product}/toggle-active', [ProductController::class, 'toggleActive'])->name('admin.product.toggleActive');
+
 });

@@ -13,7 +13,6 @@
         <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-500"></div>
     </div>
 
-
     @include('admin.layout.sidebar')
 
     <div class="flex-1 flex flex-col min-h-screen">
@@ -35,6 +34,11 @@
             loader.style.opacity = '0';
             setTimeout(() => loader.style.display = 'none', 300);
         });
+    </script>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        lucide.createIcons();
     </script>
 
 </body>
