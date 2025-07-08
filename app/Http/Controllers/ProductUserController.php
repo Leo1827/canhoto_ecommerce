@@ -1,69 +1,30 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use App\Models\Product;
 use Illuminate\Http\Request;
 
 class ProductUserController extends Controller
 {
-    //
-     //
+    // Página principal del catálogo
     public function index()
     {
-        return view('dashboard');
+        $products = Product::with(['region', 'vintage', 'winery']) // Asegúrate de tener relaciones
+            ->where('status', true)
+            ->latest()
+            ->paginate(9);
+
+        return view('dashboard', compact('products'));
     }
 
-    public function show($id)
+    // Detalle de producto
+    public function show($slug)
     {
-        // Simular productos
-        $products = [
-            'veridico-1900' => [
-                'name' => 'Verídico 1900',
-                'image' => 'product1.jpeg',
-                'price' => 10000,
-                'region' => 'Douro',
-                'year' => 2023,
-                'label' => 'Vino de Autor',
-                'description' => 'Very Very Old Tawny Port · Douro - Portugal',
-                'available' => true,
-                'details' => [
-                    'Embotellado' => '2023',
-                    'Región' => 'Douro',
-                    'Temperatura ideal' => '10-14°C',
-                    'País' => 'Portugal',
-                    'Grado alcohólico' => '20.5%',
-                    'Capacidad' => '75cl',
-                    'Casta' => 'Viñas Viejas',
-                    'Certificado' => 'IVDP',
-                ],
-            ],
-            'sassicaia-bolgheri' => [
-                'name' => 'Sassicaia Bolgheri',
-                'image' => 'product2.jpeg',
-                'price' => 950,
-                'region' => 'Toscana',
-                'year' => 2015,
-                'label' => 'Edición Limitada',
-                'description' => 'Toscana 2015 · Tenuta San Guido',
-                'available' => true,
-                'details' => [
-                    'Embotellado' => '2015',
-                    'Región' => 'Toscana',
-                    'Temperatura ideal' => '16-18°C',
-                    'País' => 'Italia',
-                    'Grado alcohólico' => '14%',
-                    'Capacidad' => '75cl',
-                    'Casta' => 'Cabernet Sauvignon',
-                    'Certificado' => 'DOC',
-                ],
-            ],
-        ];
-
-        if (!array_key_exists($id, $products)) {
-            abort(404);
-        }
-
-        $product = $products[$id];
+        $product = Product::with([
+            'region', 'vintage', 'condition', 'wineType', 'winery', 'galleries'
+        ])->where('slug', $slug)
+        ->where('status', true)
+        ->firstOrFail();
 
         return view('products.show', compact('product'));
     }

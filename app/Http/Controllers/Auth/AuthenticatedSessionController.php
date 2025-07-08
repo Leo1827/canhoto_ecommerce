@@ -45,7 +45,7 @@ class AuthenticatedSessionController extends Controller
         return redirect()->route('plan.index');
     }
 
-    return redirect()->intended(route('dashboard'));
+    return redirect()->intended(route('products.user.store'));
     }
 
     /**

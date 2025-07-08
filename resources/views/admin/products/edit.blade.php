@@ -5,7 +5,7 @@
     {{-- Breadcrumb --}}
     <nav class="text-sm text-gray-600 mb-6 bg-white border rounded-xl p-3 shadow-sm" aria-label="Breadcrumb">
         <ol class="list-none flex items-center flex-wrap gap-2">
-            <li><a href="{{ route('dashboard') }}" class="text-blue-600 hover:underline">Dashboard</a></li>
+            <li><a href="{{ route('admin.dashboard') }}" class="text-blue-600 hover:underline">Dashboard</a></li>
             <li>/</li>
             <li><a href="{{ route('products.index') }}" class="text-blue-600 hover:underline">Produto</a></li>
             <li>/</li>

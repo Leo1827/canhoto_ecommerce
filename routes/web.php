@@ -49,9 +49,9 @@ Route::post('/mollie/webhook', [SubscriptionMollieController::class, 'mollieWebh
 require __DIR__.'/auth.php';
 // User
 Route::middleware(['auth', 'verified', 'userMiddleware', 'hasPlan'])->group(function () {
-    Route::get('store', [ProductUserController::class, 'index'])->name('dashboard');
+    Route::get('/user/store', [ProductUserController::class, 'index'])->name('products.user.store');
     // Ruta del detalle del producto
-    Route::get('store/product/{id}', [ProductUserController::class, 'show'])->name('products.show');
+    Route::get('/store/user/{slug}', [ProductUserController::class, 'show'])->name('products.show');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

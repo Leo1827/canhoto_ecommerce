@@ -53,5 +53,12 @@
                 preloader.classList.add('fade-out');
             });
         </script>
+        <script>
+            function updateMainImage(src) {
+                const mainImage = document.getElementById('main-product-image');
+                mainImage.src = src;
+            }
+        </script>
     </body>
+
 </html>

@@ -31,7 +31,7 @@
             <ul class="hidden md:flex space-x-10 text-sm uppercase tracking-widest text-gray-700">
                 @auth
                     @if(Auth::user()->usertype == 'user')
-                        <li><a href="{{ route('dashboard') }}" class="hover:text-black">Loja</a></li>
+                        <li><a href="{{ route('products.user.store') }}" class="hover:text-black">Loja</a></li>
                         <li><a href="{{ route('profile.edit') }}" class="hover:text-black">Perfil</a></li>
                     @elseif(Auth::user()->usertype == 'admin')
                         <li><a href="{{ route('admin.dashboard') }}" class="hover:text-black">Administração</a></li>
@@ -80,7 +80,7 @@
 
             @auth
                 @if(Auth::user()->usertype == 'user')
-                    <li><a href="{{ route('dashboard') }}"
+                    <li><a href="{{ route('products.user.store') }}"
                         class="block text-sm uppercase tracking-widest text-gray-800 hover:text-[#4B0D0D] font-medium">
                         Loja</a></li>
                     <li><a href="{{ route('profile.edit') }}"

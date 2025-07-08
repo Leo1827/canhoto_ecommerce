@@ -2,7 +2,6 @@
 
 @section('content')
     <div class="p-6">
-        <x-breadcrumb :module="1" :editing="true" />
 
         <h2 class="text-xl font-bold mb-4">Editar Vinícola</h2>
 
