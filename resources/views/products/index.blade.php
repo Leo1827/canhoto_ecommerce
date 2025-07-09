@@ -5,7 +5,6 @@
         <p class="text-[#6B4F4F] mt-2 text-lg italic">Vinhos de prestígio, elegância e caráter.</p>
     </div>
 
-
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
         @forelse($products as $product)
         <div class="relative rounded-3xl overflow-hidden group h-[430px] shadow-lg">
@@ -20,7 +19,7 @@
             </div>
 
             <div class="absolute top-4 right-4 bg-[#4B0D0D] text-white text-xs px-4 py-1 rounded-full">
-                {{ $product->stock > 0 ? 'Disponível' : 'Esgotado' }}
+                {{ $product->totalStock() > 0 ? 'Disponível' : 'Esgotado' }}
             </div>
 
             <!-- Conteúdo -->

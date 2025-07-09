@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\RegionController;
 use App\Http\Controllers\Admin\WineTypeController;
 use App\Http\Controllers\Admin\VintageController;
 use App\Http\Controllers\Admin\ConditionController;
+use App\Http\Controllers\Admin\ProductInventoryController;
 use App\Http\Controllers\ProductController;
 // public
 use App\Http\Controllers\ProfileController;
@@ -150,6 +151,17 @@ Route::middleware(['auth','adminMiddleware'])->group(function(){
             // product gallery
         Route::post('/admin/products/{product}/gallery', [ProductController::class, 'uploadGalleryImage'])->name('products.gallery.upload');
         Route::delete('/admin/products/gallery/{gallery}', [ProductController::class, 'deleteGalleryImage'])->name('products.gallery.destroy');
+            
+            // admin/products/{product}/inventories
+        Route::prefix('admin/products/{product}')->name('admin.products.')->middleware(['auth', 'adminMiddleware'])->group(function () {
+            Route::get('inventories', [ProductInventoryController::class, 'index'])->name('inventories.index');
+            Route::get('inventories/create', [ProductInventoryController::class, 'create'])->name('inventories.create');
+            Route::post('inventories', [ProductInventoryController::class, 'store'])->name('inventories.store');
+            Route::get('inventories/{inventory}/edit', [ProductInventoryController::class, 'edit'])->name('inventories.edit');
+            Route::put('inventories/{inventory}', [ProductInventoryController::class, 'update'])->name('inventories.update');
+            Route::delete('inventories/{inventory}', [ProductInventoryController::class, 'destroy'])->name('inventories.destroy');
+        });
+
             // Lixeira / Soft Deletes
         Route::get('produtos/lixeira', [ProductController::class, 'trash'])->name('products.trash');
         Route::put('produtos/{id}/restaurar', [ProductController::class, 'restore'])->name('products.restore');

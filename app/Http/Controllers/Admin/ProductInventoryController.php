@@ -9,90 +9,79 @@ use App\Models\ProductInventory;
 
 class ProductInventoryController extends CustomBaseController
 {
-    public function __construct()
+    public function index(Product $product)
     {
-        $this->middleware('auth');
+        return view('admin.products.inventories.index', compact('product'));
     }
 
-    public function index($product_id)
+    public function create(Product $product)
     {
-        $product = Product::findOrFail($product_id);
-        $inventories = $product->inventories()->latest()->paginate(10);
-
-        return view('admin.products.inventories.index', compact('product', 'inventories'));
-    }
-
-    public function create($product_id)
-    {
-        $product = Product::findOrFail($product_id);
         return view('admin.products.inventories.create', compact('product'));
     }
 
-    public function store(Request $request, $product_id)
+    public function store(Request $request, Product $product)
     {
-        $product = Product::findOrFail($product_id);
-
-        $request->validate([
-            'name' => 'required|max:255',
-            'quantity' => 'required|integer|min:0',
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
             'price' => 'required|numeric|min:0',
-            'limited' => 'nullable|boolean',
-            'minimum' => 'required|integer|min:0',
-        ], [
-            'required' => 'O campo :attribute é obrigatório.',
-            'max' => 'O campo :attribute deve ter no máximo :max caracteres.',
-            'integer' => 'O campo :attribute deve ser um número inteiro.',
-            'numeric' => 'O campo :attribute deve ser numérico.',
-            'min' => 'O campo :attribute deve ser no mínimo :min.',
+            'limited' => 'sometimes|boolean',
         ]);
 
-        $product->inventories()->create($request->all());
+        // Si está limitado, validamos quantity y minimum
+        if ($request->boolean('limited')) {
+            $request->validate([
+                'quantity' => 'required|integer|min:0',
+                'minimum' => 'required|integer|min:0',
+            ]);
+        }
 
-        return redirect()->route('admin.products.inventories.index', $product->id)
-                         ->with('success', 'Estoque adicionado com sucesso!');
+        // Siempre aseguramos que `limited` sea 0 o 1
+        $data = $request->all();
+        $data['limited'] = $request->boolean('limited') ? 1 : 0;
+
+        $product->inventories()->create($data);
+
+        return redirect()
+            ->route('admin.products.inventories.index', $product->id)
+            ->with('success', 'Inventário adicionado com sucesso.');
     }
 
-    public function edit($product_id, $inventory_id)
+    public function edit(Product $product, ProductInventory $inventory)
     {
-        $product = Product::findOrFail($product_id);
-        $inventory = ProductInventory::where('product_id', $product->id)->findOrFail($inventory_id);
-
         return view('admin.products.inventories.edit', compact('product', 'inventory'));
     }
 
-    public function update(Request $request, $product_id, $inventory_id)
+    public function update(Request $request, Product $product, ProductInventory $inventory)
     {
-        $product = Product::findOrFail($product_id);
-        $inventory = ProductInventory::where('product_id', $product->id)->findOrFail($inventory_id);
-
-        $request->validate([
-            'name' => 'required|max:255',
-            'quantity' => 'required|integer|min:0',
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
             'price' => 'required|numeric|min:0',
-            'limited' => 'nullable|boolean',
-            'minimum' => 'required|integer|min:0',
-        ], [
-            'required' => 'O campo :attribute é obrigatório.',
-            'max' => 'O campo :attribute deve ter no máximo :max caracteres.',
-            'integer' => 'O campo :attribute deve ser um número inteiro.',
-            'numeric' => 'O campo :attribute deve ser numérico.',
-            'min' => 'O campo :attribute deve ser no mínimo :min.',
+            'limited' => 'sometimes|boolean',
         ]);
 
-        $inventory->update($request->all());
+        if ($request->boolean('limited')) {
+            $request->validate([
+                'quantity' => 'required|integer|min:0',
+                'minimum' => 'required|integer|min:0',
+            ]);
+        }
 
-        return redirect()->route('admin.products.inventories.index', $product->id)
-                         ->with('success', 'Estoque atualizado com sucesso!');
+        $data = $request->all();
+        $data['limited'] = $request->boolean('limited') ? 1 : 0;
+
+        $inventory->update($data);
+
+        return redirect()
+            ->route('admin.products.inventories.index', $product->id)
+            ->with('success', 'Inventário atualizado com sucesso.');
     }
 
-    public function destroy($product_id, $inventory_id)
-    {
-        $product = Product::findOrFail($product_id);
-        $inventory = ProductInventory::where('product_id', $product->id)->findOrFail($inventory_id);
 
+    public function destroy(Product $product, ProductInventory $inventory)
+    {
         $inventory->delete();
 
         return redirect()->route('admin.products.inventories.index', $product->id)
-                         ->with('success', 'Estoque excluído com sucesso!');
+            ->with('success', 'Inventario eliminado.');
     }
 }

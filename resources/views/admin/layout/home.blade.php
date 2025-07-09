@@ -81,6 +81,23 @@
     <script src="{{ asset('static/js/data-tables.js') }}"></script>
     {{-- dropzone gallery products --}}
     <script src="{{ asset('static/js/gallery-products.js') }}"></script>
+    {{-- inventories limited input --}}
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const limitedCheckbox = document.getElementById('limited');
+            const quantityInput = document.querySelector('input[name="quantity"]');
+            const minimumInput = document.querySelector('input[name="minimum"]');
+
+            function toggleLimitedFields() {
+                const isChecked = limitedCheckbox.checked;
+                quantityInput.disabled = !isChecked;
+                minimumInput.disabled = !isChecked;
+            }
+
+            limitedCheckbox.addEventListener('change', toggleLimitedFields);
+            toggleLimitedFields(); // al cargar
+        });
+    </script>
 
 </body>
 </html>

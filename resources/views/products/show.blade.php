@@ -9,7 +9,6 @@
         <div class="max-w-[1300px] mx-auto md:px-32 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-2 gap-10 items-start">
 
             <!-- Galería -->
-            <!-- Galería -->
             <div class="flex flex-col-reverse md:flex-row gap-4 items-start">
                 <!-- Miniaturas -->
                 <div class="flex md:flex-col gap-3">
@@ -44,12 +43,15 @@
                     {{ $product->category->name ?? 'Condición desconocida' }}
                 </div>
 
+                @php $stock = $product->totalStock(); @endphp
+
                 <div class="flex items-center space-x-4 mb-6">
                     <span class="text-2xl md:text-3xl font-bold text-[#4B0D0D]">
-                        R${{ number_format($product->price, 2, ',', '.') }}
+                        R${{ number_format($product->price, 0, ',', '.') }}
                     </span>
-                    @if($product->stock > 0)
-                        <span class="text-xs md:text-sm text-green-600">Disponível</span>
+                    
+                    @if($stock > 0)
+                        <span class="text-xs md:text-sm text-green-600">Disponível ({{ $stock }})</span>
                     @else
                         <span class="text-xs md:text-sm text-red-600">Esgotado</span>
                     @endif
@@ -74,15 +76,25 @@
                 </p>
 
                 <div class="flex flex-col md:flex-row gap-4">
-                    <button
-                        class="w-full md:w-auto px-6 py-2 rounded-xl bg-[#9B1C1C] hover:bg-[#7C1616] text-white text-sm font-semibold transition">
-                        Añadir al Carrito
-                    </button>
+                    @if($stock > 0)
+                        <button
+                            class="w-full md:w-auto px-6 py-2 rounded-xl bg-[#9B1C1C] hover:bg-[#7C1616] text-white text-sm font-semibold transition">
+                            Añadir al Carrito
+                        </button>
+                    @else
+                        <span
+                            class="w-full md:w-auto px-6 py-2 rounded-xl bg-gray-300 text-gray-600 text-sm font-semibold text-center cursor-not-allowed">
+                            Produto Esgotado
+                        </span>
+                    @endif
+
                     <a href="{{ route('products.user.store') }}"
-                       class="w-full md:w-auto px-6 py-2 rounded-xl border border-[#9B1C1C] text-[#9B1C1C] hover:bg-[#F9F4F4] text-sm font-semibold transition">
-                        Volver al Catálogo
+                    class="w-full md:w-auto px-6 py-2 rounded-xl border border-[#9B1C1C] text-[#9B1C1C] hover:bg-[#F9F4F4] text-sm font-semibold transition text-center">
+                        ← Voltar ao Catálogo
                     </a>
                 </div>
+
+
             </div>
         </div>
     </div>

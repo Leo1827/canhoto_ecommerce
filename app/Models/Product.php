@@ -72,4 +72,10 @@ class Product extends Model
     {
         return $this->hasMany(ProductInventory::class);
     }
+
+    public function totalStock()
+    {
+        return $this->inventories->sum('quantity');
+    }
+
 }

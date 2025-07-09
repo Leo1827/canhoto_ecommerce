@@ -57,6 +57,11 @@
 
                 <td class="px-4 py-2">
                     <div class="flex gap-2">
+                        <a href="{{ route('admin.products.inventories.index', $product->id) }}"
+                            class="bg-blue-600 text-white text-xs px-3 py-1 rounded hover:bg-blue-700">
+                            Inventario
+                        </a>
+
                         <a href="{{ route('products.edit', $product->id) }}" class="bg-green-600 text-white text-xs px-3 py-1 rounded hover:bg-green-700 transition">Atualizar</a>
                         <form action="{{ route('products.destroy', $product->id) }}" method="POST" onsubmit="return confirm('Deseja excluir este produto?')">
                             @csrf @method('DELETE')
