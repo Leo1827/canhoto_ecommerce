@@ -47,7 +47,7 @@
 
                 <div class="flex items-center space-x-4 mb-6">
                     <span class="text-2xl md:text-3xl font-bold text-[#4B0D0D]">
-                        R${{ number_format($product->price, 0, ',', '.') }}
+                        €{{ number_format($product->price, 0, ',', '.') }}
                     </span>
                     
                     @if($stock > 0)
@@ -75,9 +75,18 @@
                     {{ $product->description }}
                 </p>
 
-                <div class="flex flex-col md:flex-row gap-4">
+                <div x-data class="flex flex-col md:flex-row gap-4">
+                    @php
+                        $inventoryId = $product->inventories->first()?->id;
+                        $stock = $product->inventories->first()?->quantity ?? 0;
+                    @endphp
+
                     @if($stock > 0)
                         <button
+                            @click="
+                                console.log('Agregar al carrito:', {{ $product->id }}, {{ $inventoryId }});
+                                $store.cart.addToCart({{ $product->id }}, {{ $inventoryId }}, 1);
+                            "
                             class="w-full md:w-auto px-6 py-2 rounded-xl bg-[#9B1C1C] hover:bg-[#7C1616] text-white text-sm font-semibold transition">
                             Añadir al Carrito
                         </button>
@@ -87,6 +96,7 @@
                             Produto Esgotado
                         </span>
                     @endif
+
 
                     <a href="{{ route('products.user.store') }}"
                     class="w-full md:w-auto px-6 py-2 rounded-xl border border-[#9B1C1C] text-[#9B1C1C] hover:bg-[#F9F4F4] text-sm font-semibold transition text-center">

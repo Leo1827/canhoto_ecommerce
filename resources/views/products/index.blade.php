@@ -32,7 +32,9 @@
                 </p>
 
                 <div class="flex items-center justify-between">
-                    <span class="text-2xl font-bold text-[#FCD9D9]">R${{ number_format($product->price, 0, ',', '.') }}</span>
+                    <span class="text-2xl font-bold text-[#FCD9D9]">
+                        €{{ number_format($product->price, 0, ',', '.') }}
+                    </span>
                     <a href="{{ route('products.show', $product->slug) }}"
                     class="inline-flex items-center px-4 py-1.5 bg-[#9B1C1C] hover:bg-[#7C1616] rounded-xl text-sm text-white font-semibold transition">
                         Ver Detalhes

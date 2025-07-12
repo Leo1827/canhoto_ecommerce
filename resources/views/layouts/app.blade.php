@@ -15,9 +15,14 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
         {{-- preloader-link --}}
         <link rel="stylesheet" href="{{ asset('static/css/style-home.css') }}">
+        <style>
+            [x-cloak] {
+                display: none !important;
+            }
+        </style>
 
     </head>
-    <body class="font-sans antialiased">
+    <body class="font-sans antialiased" x-data x-init="$store.cart.loadCart()">
         <!-- Preloader -->
         <div id="preloader">
             <div class="loader">
@@ -42,6 +47,29 @@
             <main>
                 {{ $slot }}
             </main>
+
+            <!-- Preloader reactivo para acciones del carrito -->
+            <div
+                x-show="$store.cart.loadingCart || $store.cart.loadingAdd || $store.cart.loadingUpdateId !== null || $store.cart.loadingRemoveId !== null"
+                x-transition.opacity
+                x-cloak
+                class="fixed inset-0 z-[9999] bg-white/100 flex items-center justify-center"
+                style="backdrop-filter: blur(4px);"
+            >
+                <div class="flex flex-col items-center gap-4">
+                    <svg class="animate-spin h-10 w-10 text-[#9B1C1C]" xmlns="http://www.w3.org/2000/svg" fill="none"
+                        viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10"
+                            stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor"
+                            d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 00-8 8h4z" />
+                    </svg>
+                    <span class="text-[#9B1C1C] font-medium text-lg">Procesando...</span>
+                </div>
+
+
+            </div>
+
         </div>
 
         @include('layouts.footer')
@@ -59,6 +87,7 @@
                 mainImage.src = src;
             }
         </script>
+
     </body>
 
 </html>

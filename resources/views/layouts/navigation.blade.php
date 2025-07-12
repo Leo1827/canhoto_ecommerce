@@ -28,8 +28,8 @@
                 </div>
             </div>
             
-            <!-- Carrinho + Usuário -->
-            @include('components.cart-order-items')
+            <!-- nav + Carrinho + Usuário -->
+            @include('components.menu-order-items')
         </div>
     </div>
 </nav>

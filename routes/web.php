@@ -25,6 +25,7 @@ use App\Http\Controllers\SubscriptionPagoController;
 use App\Http\Controllers\SuscriptionStripeController;
 use App\Http\Controllers\SubscriptionMollieController;
 use App\Http\Controllers\ProductUserController;
+use App\Http\Controllers\CartController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -58,6 +59,11 @@ Route::middleware(['auth', 'verified', 'userMiddleware', 'hasPlan'])->group(func
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     
+    // json
+    Route::get('/cart/json', [CartController::class, 'json'])->name('cart.json');
+    Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
+    Route::post('/cart/update/{id}', [CartController::class, 'update'])->name('cart.update');
+    Route::delete('/cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
 });
 
 // admin routes

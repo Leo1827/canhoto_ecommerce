@@ -78,4 +78,15 @@ class Product extends Model
         return $this->inventories->sum('quantity');
     }
 
+    // cart img
+    public function getImageUrlAttribute()
+    {
+        if (!$this->image) {
+            return asset('img/default.jpeg');
+        }
+
+        return asset('storage/products/resized/' . $this->image);
+    }
+
+
 }
