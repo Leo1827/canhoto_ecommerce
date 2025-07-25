@@ -26,6 +26,8 @@ use App\Http\Controllers\SuscriptionStripeController;
 use App\Http\Controllers\SubscriptionMollieController;
 use App\Http\Controllers\ProductUserController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\AddressUserController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -49,21 +51,29 @@ Route::post('/mollie/webhook', [SubscriptionMollieController::class, 'mollieWebh
 
 
 require __DIR__.'/auth.php';
+
 // User
 Route::middleware(['auth', 'verified', 'userMiddleware', 'hasPlan'])->group(function () {
     Route::get('/user/store', [ProductUserController::class, 'index'])->name('products.user.store');
     // Ruta del detalle del producto
     Route::get('/store/user/{slug}', [ProductUserController::class, 'show'])->name('products.show');
-
+    // profile
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-    
     // json
     Route::get('/cart/json', [CartController::class, 'json'])->name('cart.json');
     Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
     Route::post('/cart/update/{id}', [CartController::class, 'update'])->name('cart.update');
     Route::delete('/cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
+
+    // checkout cart
+    Route::get('/user/cart/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
+    // user address
+    Route::post('/user/address', [AddressUserController::class, 'storeAddress'])->name('addresses.store');
+    Route::put('/addresses/{address}', [AddressUserController::class, 'update'])->name('addresses.update');
+    Route::delete('/addresses/{address}', [AddressUserController::class, 'destroy'])->name('addresses.destroy');
+
 });
 
 // admin routes

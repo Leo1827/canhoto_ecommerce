@@ -63,7 +63,7 @@
                 <span class="text-sm text-[#4B0D0D] font-medium">Total</span>
                 <span class="text-lg font-semibold text-[#4B0D0D]" x-text="'€ ' + $store.cart.cartTotal.toFixed(2)"></span>
             </div>
-            <a href="#"
+            <a href="{{ route('checkout.index') }}"
                 class="block w-full px-4 py-2 text-center bg-[#9B1C1C] text-white rounded-lg hover:bg-[#7C1616] transition">
                 Finalizar Compra
             </a>
