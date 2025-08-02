@@ -17,7 +17,7 @@ class PlanController extends Controller
         $user = Auth::user();
 
         if ($user && $user->activeSubscription) {
-            return redirect()->route('dashboard')->with('info', 'Ya tienes una suscripción activa.');
+            return redirect()->route('products.user.store')->with('info', 'Você tem uma assinatura ativa.');
         }
 
         $planes = Plan::where('is_active', false)->with('currency')->get(); // <-- importante with('currency')

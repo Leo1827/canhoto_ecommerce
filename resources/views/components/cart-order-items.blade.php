@@ -38,7 +38,7 @@
                         </div>
 
                         <!-- Subtotal -->
-                        <div x-text="'Subtotal: R$ ' + (parseFloat(item.subtotal || 0)).toFixed(2)"></div>
+                        <div x-text="'Subtotal: €' + (parseFloat(item.subtotal || 0)).toFixed(2)"></div>
                     </div>
 
                     <!-- Botón eliminar -->
@@ -63,14 +63,22 @@
                 <span class="text-sm text-[#4B0D0D] font-medium">Total</span>
                 <span class="text-lg font-semibold text-[#4B0D0D]" x-text="'€ ' + $store.cart.cartTotal.toFixed(2)"></span>
             </div>
-            <a href="{{ route('checkout.index') }}"
-                class="block w-full px-4 py-2 text-center bg-[#9B1C1C] text-white rounded-lg hover:bg-[#7C1616] transition">
+
+            <!-- Botón Finalizar Compra deshabilitado si no hay productos -->
+            <a 
+                href="{{ route('checkout.index') }}"
+                :class="$store.cart.cartItems.length === 0 ? 'pointer-events-none opacity-50 bg-[#9B1C1C]' : 'bg-[#9B1C1C] hover:bg-[#7C1616]'"
+                :disabled="$store.cart.cartItems.length === 0"
+                class="block w-full px-4 py-2 text-center text-white rounded-lg transition"
+            >
                 Finalizar Compra
             </a>
+
             <button @click="$store.cart.openCart = false"
                 class="w-full mt-3 px-4 py-2 border border-[#9B1C1C] text-[#9B1C1C] rounded-lg hover:bg-[#F9F4F4] transition">
                 Continuar Comprando
             </button>
         </div>
+
     </div>
 </div>

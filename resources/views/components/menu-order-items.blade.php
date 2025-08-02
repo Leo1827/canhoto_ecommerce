@@ -13,7 +13,7 @@
 
         <div x-show="open" @click.away="open = false"
                 class="absolute right-0 mt-2 w-48 bg-white border border-[#E5E7EB] rounded-xl shadow-lg z-50">
-            <a href="#"
+            <a href="{{ route('profile.edit') }}"
                 class="block px-4 py-2 text-sm text-[#4B0D0D] hover:bg-[#F9F4F4] rounded-t-xl">
                 Perfil
             </a>

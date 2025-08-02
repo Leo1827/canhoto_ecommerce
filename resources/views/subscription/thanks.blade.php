@@ -14,7 +14,7 @@
         <p class="text-gray-700 text-lg">
             Tu pago fue procesado correctamente. Ahora tienes acceso completo al contenido premium.
         </p>
-        <a href="{{ route('dashboard') }}" class="inline-block mt-6 px-6 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition">
+        <a href="{{ route('products.user.store') }}" class="inline-block mt-6 px-6 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition">
             Ir al Panel de Usuario
         </a>
     </div>

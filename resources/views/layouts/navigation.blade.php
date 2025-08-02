@@ -13,15 +13,15 @@
                        class="font-semibold text-sm uppercase tracking-widest transition">
                         Início
                     </a>
-                    <a href="#"
+                    <a href="{{ route('products.user.store') }}"
                        class="font-semibold text-sm uppercase tracking-widest transition">
                         Catálogo
                     </a>
-                    <a href="#"
+                    <a href="{{ route('user.orders.index') }}"
                        class="font-semibold text-sm uppercase tracking-widest transition">
-                        Meus Pedidos
+                        Minhas Ordens
                     </a>
-                    <a href="#"
+                    <a href="{{ route('profile.edit') }}"
                        class="font-semibold text-sm uppercase tracking-widest transition">
                         Meu Perfil
                     </a>

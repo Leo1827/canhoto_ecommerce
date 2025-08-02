@@ -9,6 +9,8 @@ class UserAddress extends Model
     //
     use HasFactory;
 
+    protected $table = 'user_addresses';
+
     protected $fillable = [
         'user_id',
         'full_name',
@@ -24,4 +26,10 @@ class UserAddress extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function fullAddress()
+    {
+        return "{$this->address}, {$this->city}, {$this->state}, {$this->country}, {$this->postal_code}";
+    }
+
 }

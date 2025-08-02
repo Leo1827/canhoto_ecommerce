@@ -28,6 +28,9 @@ use App\Http\Controllers\ProductUserController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\AddressUserController;
+use App\Http\Controllers\PaypalOrderController;
+// view orders
+use App\Http\Controllers\UserOrderController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -54,6 +57,10 @@ require __DIR__.'/auth.php';
 
 // User
 Route::middleware(['auth', 'verified', 'userMiddleware', 'hasPlan'])->group(function () {
+    // orders user
+    Route::get('/user-exclusive/orders', [UserOrderController::class, 'index'])->name('user.orders.index');
+    Route::get('/user-exclusive/orders/{order}', [UserOrderController::class, 'show'])->name('user.orders.show');
+    // store products
     Route::get('/user/store', [ProductUserController::class, 'index'])->name('products.user.store');
     // Ruta del detalle del producto
     Route::get('/store/user/{slug}', [ProductUserController::class, 'show'])->name('products.show');
@@ -69,6 +76,18 @@ Route::middleware(['auth', 'verified', 'userMiddleware', 'hasPlan'])->group(func
 
     // checkout cart
     Route::get('/user/cart/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
+    Route::post('/checkout/waiting-room', [CheckoutController::class, 'waitingRoom'])->name('checkout.waiting_room');
+    
+    // paypal
+    Route::post('/user/checkout/payment', [PaypalOrderController::class, 'startPayment'])->name('checkout.pay');
+    Route::get('/checkout/paypal/success', [PaypalOrderController::class, 'paypalSuccess'])->name('paypal.success');
+    Route::get('/checkout/paypal/cancel', [PaypalOrderController::class, 'paypalCancel'])->name('paypal.cancel');
+    Route::get('/checkout/payment/paypal/Thanks', [PaypalOrderController::class, 'paypalThanks'])->name('paypal.thanks');
+
+    // stripe
+
+    // mollie
+
     // user address
     Route::post('/user/address', [AddressUserController::class, 'storeAddress'])->name('addresses.store');
     Route::put('/addresses/{address}', [AddressUserController::class, 'update'])->name('addresses.update');
