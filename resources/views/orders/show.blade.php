@@ -10,7 +10,7 @@
                     <p><strong>Factura:</strong> {{ $order->invoice->invoice_number ?? 'Sin número' }}</p>
                     <p><strong>Total:</strong> €{{ number_format($order->total, 2) }}</p>
                     <p><strong>Método de Pago:</strong> {{ $order->payment_method }}</p>
-                    <p><strong>Estado:</strong> {{ ucfirst($order->status) }}</p>
+                    <p><strong>Estado:</strong> <span class="bg-green-300 px-2 p-1 rounded-md">{{ ucfirst($order->status) }} </span> </p>
                     <p><strong>Comentario:</strong> {{ ucfirst($order->user_comment) }}</p>
                 </div>
 
@@ -54,18 +54,30 @@
             </table>
         </div>
 
-        <div class="bg-white p-6 rounded shadow">
-            <h2 class="text-lg font-semibold mb-2">Historial de Estado</h2>
-            <ul class="list-disc pl-5">
-                @foreach($order->statusHistories as $history)
-                    <li class="text-sm text-gray-700">
-                        <strong>{{ ucfirst($history->status) }}</strong> - {{ \Carbon\Carbon::parse($history->changed_at)->format('d/m/Y H:i') }}
-                        @if($history->description)
-                            <br><span class="text-gray-500">{{ $history->description }}</span>
-                        @endif
-                    </li>
+        <div class="bg-white p-6 rounded-2xl shadow-lg mb-6">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b pb-2">Seguimiento del Pedido</h2>
+
+            <div class="relative border-l-4 border-gray-200 ml-4 pl-6 space-y-8">
+                @foreach($order->statusHistories->sortBy('changed_at') as $step)
+                    <div class="relative group">
+                        <!-- Puntos del timeline -->
+                        <div class="absolute w-4 h-4 bg-[#4B0D0D] transition-colors rounded-full -left-6 top-1.5 border-2 border-white shadow-md"></div>
+
+                        <div class="bg-[#FAF8F6] p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200">
+                            <p class="text-base font-semibold text-gray-800 flex items-center">
+                                {{ ucfirst($step->status) }}
+                                <span class="ml-2 text-xs text-gray-500">
+                                    {{ \Carbon\Carbon::parse($step->changed_at)->format('d/m/Y H:i') }}
+                                </span>
+                            </p>
+                            @if($step->description)
+                                <p class="text-sm text-gray-600 mt-1 italic">{{ $step->description }}</p>
+                            @endif
+                        </div>
+                    </div>
                 @endforeach
-            </ul>
+            </div>
         </div>
+
     </div>
 </x-app-layout>

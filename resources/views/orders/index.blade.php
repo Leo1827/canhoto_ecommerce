@@ -1,5 +1,5 @@
 <x-app-layout>
-    <div class="container mx-auto py-10 px-4">
+    <div class="container mx-auto py-10 px-32">
         <h1 class="text-2xl font-bold text-gray-800 mb-8">Historial de Órdenes</h1>
 
         @if($orders->isEmpty())
