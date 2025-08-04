@@ -29,6 +29,7 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\AddressUserController;
 use App\Http\Controllers\PaypalOrderController;
+use App\Http\Controllers\StripeOrderController;
 // view orders
 use App\Http\Controllers\UserOrderController;
 
@@ -85,6 +86,11 @@ Route::middleware(['auth', 'verified', 'userMiddleware', 'hasPlan'])->group(func
     Route::get('/checkout/payment/paypal/Thanks', [PaypalOrderController::class, 'paypalThanks'])->name('paypal.thanks');
 
     // stripe
+    Route::post('/user/checkout/stripe', [StripeOrderController::class, 'startPayment'])->name('stripe.start');
+    Route::get('/checkout/stripe/success', [StripeOrderController::class, 'stripeSuccess'])->name('stripe.store.success');
+    Route::get('/checkout/stripe/cancel', [StripeOrderController::class, 'stripeCancel'])->name('stripe.store.cancel');
+    Route::get('/checkout/payment/thanks', [StripeOrderController::class, 'stripeThanks'])->name('stripe.store.thanks');
+    Route::post('/checkout/stripe/webhook', [StripeOrderController::class, 'webhook'])->name('stripe.store.webhook');
 
     // mollie
 

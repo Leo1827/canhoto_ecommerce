@@ -328,7 +328,7 @@ class PaypalOrderController extends Controller
             return redirect()->route('paypal.thanks')->with('success', 'Pagamento efetuado com sucesso. Obrigado pela sua compra.');
 
         } catch (\Exception $e) {
-                    dd($e);
+                    // dd($e);
                     DB::rollBack();
                     Log::error('❌ Erro ao salvar pedido após pagamento via PayPal.', ['exception' => $e]);
                     return redirect()->route('checkout.index')->with('error', 'Erro ao salvar dados do pedido: ' . $e->getMessage());
