@@ -73,9 +73,9 @@
                         Pagar com Stripe
                     </button>
                 @elseif ($paymentMethod === 'mollie')
-                    <a href="#" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition">
+                    <button type="button" id="payMolBtn" class="bg-black text-white px-4 py-2 rounded hover:bg-black transition">
                         Pagar com Mollie
-                    </a>
+                    </button>
                 @endif
 
                 {{-- Botón Cancelar --}}
@@ -112,7 +112,7 @@
             form.action = "{{ route('stripe.start') }}";
             formShouldSubmit = true;
         @elseif ($paymentMethod === 'mollie')
-            form.action = "{{ route('checkout.mollie') }}";
+            form.action = "{{ route('mollie.store.start') }}";
             formShouldSubmit = true;
         @endif
 
@@ -135,12 +135,17 @@
 
         const payNowBtn = document.getElementById('payNowBtn');
         const payStrBtn = document.getElementById('payStrBtn');
+        const payMolBtn = document.getElementById('payMolBtn');
         if (payNowBtn) {
             payNowBtn.addEventListener('click', () => {
                 form.submit();
             });
         } else if (payStrBtn) {
             payStrBtn.addEventListener('click', () => {
+                form.submit();
+            });
+        } else if (payMolBtn){
+            payMolBtn.addEventListener('click', () => {
                 form.submit();
             });
         }

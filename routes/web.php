@@ -30,6 +30,7 @@ use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\AddressUserController;
 use App\Http\Controllers\PaypalOrderController;
 use App\Http\Controllers\StripeOrderController;
+use App\Http\Controllers\MollieOrderController;
 // view orders
 use App\Http\Controllers\UserOrderController;
 
@@ -93,6 +94,10 @@ Route::middleware(['auth', 'verified', 'userMiddleware', 'hasPlan'])->group(func
     Route::post('/checkout/stripe/webhook', [StripeOrderController::class, 'webhook'])->name('stripe.store.webhook');
 
     // mollie
+    Route::post('/user/checkout/mollie', [MollieOrderController::class, 'startPayment'])->name('mollie.store.start');
+    Route::get('/checkout/mollie/success', [MollieOrderController::class, 'success'])->name('mollie.store.success');
+    Route::get('/checkout/mollie/cancel', [MollieOrderController::class, 'cancel'])->name('mollie.store.cancel');
+    Route::get('/checkout/payment/mollie/thanks', [MollieOrderController::class, 'thanks'])->name('mollie.store.thanks');
 
     // user address
     Route::post('/user/address', [AddressUserController::class, 'storeAddress'])->name('addresses.store');
