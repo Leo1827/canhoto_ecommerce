@@ -1,4 +1,4 @@
-<div id="ageModal" class="fixed inset-0 bg-black bg-opacity-80 backdrop-blur-sm flex items-center justify-center z-50">
+<div id="ageModal" class="hidden fixed inset-0 bg-black bg-opacity-80 backdrop-blur-sm items-center justify-center z-50">
     <div class="bg-white max-w-md w-full rounded-3xl shadow-2xl p-8 sm:p-10 text-center animate-fade-in-down relative border border-gray-200">
         
         <div class="mb-6">
@@ -27,6 +27,7 @@
             </button>
         </div>
     </div>
+
 </div>
 <script>
     document.addEventListener("DOMContentLoaded", () => {
@@ -35,9 +36,10 @@
         const birthInput = document.getElementById("birthDate");
         const errorMsg = document.getElementById("ageError");
 
-        // Mostrar modal si no se ha verificado aún
+        // Mostrar modal si no está verificado
         if (!localStorage.getItem("isAdult")) {
             modal.classList.remove("hidden");
+            modal.classList.add("flex"); // Aquí se aplica flex SOLO si debe mostrarse
         }
 
         verifyBtn.addEventListener("click", () => {
@@ -52,21 +54,20 @@
 
             const age = today.getFullYear() - birthDate.getFullYear();
             const m = today.getMonth() - birthDate.getMonth();
-            const day = today.getDate() - birthDate.getDate();
+            const d = today.getDate() - birthDate.getDate();
 
-            const is18 = (age > 18) || (age === 18 && (m > 0 || (m === 0 && day >= 0)));
+            const is18 = (age > 18) || (age === 18 && (m > 0 || (m === 0 && d >= 0)));
 
             if (is18) {
                 localStorage.setItem("isAdult", "true");
+                modal.classList.remove("flex");
                 modal.classList.add("hidden");
             } else {
                 errorMsg.textContent = "Você deve ter mais de 18 anos para acessar este site.";
                 errorMsg.classList.remove("hidden");
-
-                setTimeout(() => {
-                }, 2500); // espera 2.5 segundos para mostrar el mensaje antes de salir
             }
         });
     });
+
 </script>
 

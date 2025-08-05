@@ -16,6 +16,7 @@
 @section('content')
 
 
+
     @include('home')
 
     {{-- about --}}
@@ -122,7 +123,7 @@
 
         // AOS
         AOS.init({
-            duration: 1200,
+            duration: 200,
             once: true,
             easing: 'ease-in-out',
         });
