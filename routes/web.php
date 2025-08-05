@@ -33,6 +33,8 @@ use App\Http\Controllers\StripeOrderController;
 use App\Http\Controllers\MollieOrderController;
 // view orders
 use App\Http\Controllers\UserOrderController;
+// view suscripcion 
+use App\Http\Controllers\SubscriptionStoreController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -66,6 +68,9 @@ Route::middleware(['auth', 'verified', 'userMiddleware', 'hasPlan'])->group(func
     Route::get('/user/store', [ProductUserController::class, 'index'])->name('products.user.store');
     // Ruta del detalle del producto
     Route::get('/store/user/{slug}', [ProductUserController::class, 'show'])->name('products.show');
+    // suscripcion
+    Route::get('/user-exclusive/minhas-assinaturas', [SubscriptionStoreController::class, 'index'])->name('subscriptions.user.index');
+
     // profile
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

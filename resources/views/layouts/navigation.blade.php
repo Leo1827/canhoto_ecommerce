@@ -21,9 +21,9 @@
                        class="font-semibold text-sm uppercase tracking-widest transition">
                         Minhas Ordens
                     </a>
-                    <a href="{{ route('profile.edit') }}"
+                    <a href="{{ route('subscriptions.user.index') }}"
                        class="font-semibold text-sm uppercase tracking-widest transition">
-                        Meu Perfil
+                        Minhas assinaturas
                     </a>
                 </div>
             </div>
