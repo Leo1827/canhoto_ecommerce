@@ -1,13 +1,13 @@
 <x-app-layout>
-    <div class="container mx-auto px-4 py-8">
+    <div class="container mx-auto sm:px-4 md:px-32 py-8">
         <h2 class="text-2xl font-bold mb-6">Minhas Assinaturas</h2>
 
         @if ($subscriptions->isEmpty())
             <p class="text-gray-600">Você ainda não possui assinaturas.</p>
         @else
             <!-- Filtro por mês -->
-            <div class="mb-4">
-                <label for="filter-month" class="font-semibold mr-2">Filtrar por mês:</label>
+            <div class="my-4">
+                <label for="filter-month" class="font-semibold mr-2 my-5">Filtrar por mês:</label>
                 <select id="filter-month" class="border rounded px-2 py-1">
                     <option value="">Todos</option>
                     @foreach($subscriptions->pluck('created_at')->unique()->sort() as $date)

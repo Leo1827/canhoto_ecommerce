@@ -15,9 +15,9 @@
                 class="absolute right-0 mt-2 w-48 bg-white border border-[#E5E7EB] rounded-xl shadow-lg z-50">
             <a href="{{ route('profile.edit') }}"
                 class="block px-4 py-2 text-sm text-[#4B0D0D] hover:bg-[#F9F4F4] rounded-t-xl">
-                Perfil
+                Configuração
             </a>
-            <a href="#"
+            <a href="{{ route('user.orders.index') }}"
                 class="block px-4 py-2 text-sm text-[#4B0D0D] hover:bg-[#F9F4F4]">
                 Meus Pedidos
             </a>
@@ -31,22 +31,23 @@
         </div>
     </div>
     <!-- Botón del carrito -->
-    <button @click="$store.cart.openCart = true" class="relative">
-        <!-- Icono -->
-        <svg class="w-6 h-6 text-[#4B0D0D] hover:text-[#9B1C1C] transition" fill="none"
-            stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13l-1.5 7H19M7 13l1.5-7h8l1.5 7"/>
-        </svg>
-        <!-- Contador -->
-        <span
-            x-show="$store.cart.cartItems.length > 0"
-            x-text="$store.cart.cartItems.length"
-            class="absolute -top-2 -right-2 bg-red-600 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center"
-        ></span>
-    </button>
+    @if (!request()->routeIs('profile.edit'))
+        <button @click="$store.cart.openCart = true" class="relative">
+            <!-- Icono -->
+            <svg class="w-6 h-6 text-[#4B0D0D] hover:text-[#9B1C1C] transition" fill="none"
+                stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13l-1.5 7H19M7 13l1.5-7h8l1.5 7"/>
+            </svg>
+            <!-- Contador -->
+            <span
+                x-show="$store.cart.cartItems.length > 0"
+                x-text="$store.cart.cartItems.length"
+                class="absolute -top-2 -right-2 bg-red-600 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center"
+            ></span>
+        </button>
 
+         @include('components.cart-order-items')
+    @endif
 
-    @include('components.cart-order-items')
-    
 </div>

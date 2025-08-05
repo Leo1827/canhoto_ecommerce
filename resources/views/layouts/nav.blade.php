@@ -13,20 +13,6 @@
                     </a>
                 </div>
 
-                {{-- navigation links --}}
-                <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
-                    <x-nav-link :href="url('/')" :active="request()->routeIs('/')">
-                        {{ __('Inicio') }}
-                    </x-nav-link>
-
-                    <x-nav-link :href="url('/about')" :active="request()->routeIs('about')">
-                        {{ __('Acerca de SETSP') }}
-                    </x-nav-link>
-
-                    <x-nav-link :href="url('/contact')" :active="request()->routeIs('contact')">
-                        {{ __('Contacto v') }}
-                    </x-nav-link>
-                </div>
 
                 {{-- Hamburger --}}
                 <div class="-me-2 flex items-center sm:hidden">
@@ -64,20 +50,6 @@
 
         {{-- responsive navigation menu --}}
         <div :class="{'block': open, 'hidden': !open }" class="hidden sm:hidden">
-            <div class="pt-2 pb-3 space-y-1">
-                <x-responsive-nav-link :href="url('/')" :active="request()->routeIs('home')">
-                    {{ __('Inicio') }}
-                </x-responsive-nav-link>
-
-                <x-responsive-nav-link :href="url('/about')" :active="request()->routeIs('about')">
-                    {{ __('Acerca de SETSP') }}
-                </x-responsive-nav-link>
-
-                <x-responsive-nav-link :href="url('/contact')" :active="request()->routeIs('contact')">
-                    {{ __('Contacto') }}
-                </x-responsive-nav-link>
-            </div>
-
 
             <div class="pt-4 pb-1 border-t border-gray-200">
 

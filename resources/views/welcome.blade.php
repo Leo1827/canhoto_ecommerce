@@ -15,8 +15,6 @@
 
 @section('content')
 
-
-
     @include('home')
 
     {{-- about --}}

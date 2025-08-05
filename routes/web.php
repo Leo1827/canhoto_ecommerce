@@ -68,7 +68,7 @@ Route::middleware(['auth', 'verified', 'userMiddleware', 'hasPlan'])->group(func
     Route::get('/user/store', [ProductUserController::class, 'index'])->name('products.user.store');
     // Ruta del detalle del producto
     Route::get('/store/user/{slug}', [ProductUserController::class, 'show'])->name('products.show');
-    // suscripcion
+    // subscripcion
     Route::get('/user-exclusive/minhas-assinaturas', [SubscriptionStoreController::class, 'index'])->name('subscriptions.user.index');
 
     // profile

@@ -1,4 +1,4 @@
-<nav class="bg-[#FDFDFC] border-b border-[#E5E7EB] shadow-sm">
+<nav id="mainNavbar" class="fixed top-0 left-0 w-full z-50 bg-[#FDFDFC] border-b border-[#E5E7EB] shadow-sm transition-all duration-300 backdrop-blur-none">
     <div class="max-w-7xl mx-auto px-6">
         <div class="flex justify-between h-20 items-center">
 

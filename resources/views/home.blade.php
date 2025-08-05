@@ -65,7 +65,6 @@
         </div>
     </nav>
 
-    {{-- Menu mobile desplegable --}}
     <!-- Menú Mobile Desplegable -->
     <div id="mobile-menu"
         class="hidden fixed top-20 left-6 right-6 bg-white bg-opacity-90 backdrop-blur-md shadow-2xl rounded-3xl px-8 py-6 z-50">
