@@ -16,11 +16,11 @@ class SubscriptionStoreController extends Controller
         $subscriptions = Subscription::with('plan')
             ->where('user_id', $user->id)
             ->orderByDesc('created_at')
-            ->get();
+            ->paginate(6);
 
         $invoices = Invoice::where('user_id', $user->id)
             ->orderByDesc('issue_date')
-            ->get();
+            ->paginate(6);
 
         return view('user_subscription.index', compact('subscriptions', 'invoices'));
     }

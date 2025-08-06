@@ -27,9 +27,12 @@
                     </a>
                 </div>
             </div>
+
             
             <!-- nav + Carrinho + Usuário -->
             @include('components.menu-order-items')
         </div>
     </div>
 </nav>
+
+@include('layouts.menu-movil')

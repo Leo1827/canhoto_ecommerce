@@ -64,6 +64,7 @@ Route::middleware(['auth', 'verified', 'userMiddleware', 'hasPlan'])->group(func
     // orders user
     Route::get('/user-exclusive/orders', [UserOrderController::class, 'index'])->name('user.orders.index');
     Route::get('/user-exclusive/orders/{order}', [UserOrderController::class, 'show'])->name('user.orders.show');
+    Route::get('/orders/{order}/download', [UserOrderController::class, 'downloadInvoice'])->name('user.orders.download');
     // store products
     Route::get('/user/store', [ProductUserController::class, 'index'])->name('products.user.store');
     // Ruta del detalle del producto
