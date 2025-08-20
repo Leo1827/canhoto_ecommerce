@@ -1,5 +1,5 @@
 <!-- Catálogo -->
-<section class="md:col-span-3 px-4 py-8">
+<section class="md:col-span-3 px-4 mt-2 pb-8">
     <div class="mb-8">
         <h2 class="text-4xl font-bold text-[#4B0D0D]">Coleção Privada</h2>
         <p class="text-[#6B4F4F] mt-2 text-lg italic">Vinhos de prestígio, elegância e caráter.</p>
