@@ -130,11 +130,21 @@
 
     <div class="totals">
         <p><strong>Subtotal:</strong> € {{ number_format($invoice->order->subtotal, 2, ',', '.') }}</p>
-        <p><strong>IVA ({{ $invoice->order->tax ? ($invoice->order->tax/$invoice->order->subtotal*100) : 0 }}%):</strong>
-           € {{ number_format($invoice->order->tax, 2, ',', '.') }}</p>
-        <p><strong>Total:</strong> € {{ number_format($invoice->amount, 2, ',', '.') }} {{ $invoice->currency }}</p>
+
+        <p>
+            <strong>IVA ({{ $invoice->order->subtotal > 0 ? number_format(($invoice->order->tax / $invoice->order->subtotal) * 100, 2, ',', '.') : 0 }}%):</strong>
+            € {{ number_format($invoice->order->tax, 2, ',', '.') }}
+        </p>
+
+        <p><strong>Custo de envio:</strong> € {{ number_format($invoice->order->shipping_cost, 2, ',', '.') }}</p>
+
+        <hr style="margin: 10px 0; border: none; border-top: 1px solid #ccc;">
+
+        <p><strong>Total:</strong> € {{ number_format($invoice->order->total, 2, ',', '.') }} {{ $invoice->currency }}</p>
+
         <p><strong>Método de pagamento:</strong> {{ ucfirst($invoice->payment_method) }}</p>
     </div>
+
 
     <div class="footer">
         <p><em>Esta fatura serve como comprovativo oficial da sua compra.</em></p>

@@ -14,6 +14,12 @@ use App\Http\Controllers\Admin\VintageController;
 use App\Http\Controllers\Admin\ConditionController;
 use App\Http\Controllers\Admin\ProductInventoryController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\Admin\OrderController;
+use App\Http\Controllers\Admin\InvoiceController;
+use App\Http\Controllers\Admin\ShipmentController;
+use App\Http\Controllers\Admin\CustomerController;
+use App\Http\Controllers\Admin\ActivityLogController;
+
 // public
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -220,5 +226,39 @@ Route::middleware(['auth','adminMiddleware'])->group(function(){
         Route::delete('produtos/{id}/excluir-definitivamente', [ProductController::class, 'forceDelete'])->name('products.forceDelete');
             // disabled and enable product
         Route::patch('/admin/product/{product}/toggle-active', [ProductController::class, 'toggleActive'])->name('admin.product.toggleActive');
+
+
+    
+    // CRUD Orders
+        Route::get('admin/orders', [OrderController::class, 'index'])->name('admin.orders.index'); 
+        Route::post('/orders', [OrderController::class, 'store'])->name('admin.orders.store'); 
+
+    // CRUD Invoices
+        Route::get('admin/invoices', [InvoiceController::class, 'index'])->name('admin.invoices.index');
+        Route::post('/invoices', [InvoiceController::class, 'store'])->name('invoices.store');
+        Route::get('admin/invoices/{invoice}', [InvoiceController::class, 'show'])->name('invoices.show');
+        Route::get('admin/orders/{order}/download', [InvoiceController::class, 'downloadInvoiceAdmin'])->name('admin.user.orders.download');
+        Route::delete('/invoices/{invoice}', [InvoiceController::class, 'destroy'])->name('invoices.destroy');
+
+    // Envíos / Seguimiento de pedidos
+    Route::get('/shipments', [ShipmentController::class, 'index'])->name('admin.shipments.index');
+    Route::get('/shipments/create', [ShipmentController::class, 'create'])->name('shipments.create');
+    Route::post('/shipments', [ShipmentController::class, 'store'])->name('shipments.store');
+    Route::get('/shipments/{shipment}', [ShipmentController::class, 'show'])->name('shipments.show');
+    Route::get('/shipments/{shipment}/edit', [ShipmentController::class, 'edit'])->name('shipments.edit');
+    Route::put('/shipments/{shipment}', [ShipmentController::class, 'update'])->name('shipments.update');
+    Route::delete('/shipments/{shipment}', [ShipmentController::class, 'destroy'])->name('shipments.destroy');
+
+    // CRUD Customers
+    Route::get('/customers', [CustomerController::class, 'index'])->name('admin.customers.index');
+    Route::get('/customers/create', [CustomerController::class, 'create'])->name('customers.create');
+    Route::post('/customers', [CustomerController::class, 'store'])->name('customers.store');
+    Route::get('/customers/{customer}', [CustomerController::class, 'show'])->name('customers.show');
+    Route::get('/customers/{customer}/edit', [CustomerController::class, 'edit'])->name('customers.edit');
+    Route::put('/customers/{customer}', [CustomerController::class, 'update'])->name('customers.update');
+    Route::delete('/customers/{customer}', [CustomerController::class, 'destroy'])->name('customers.destroy');
+
+    // Logs de actividad
+    Route::get('activity-logs', [ActivityLogController::class, 'index'])->name('admin.activity_logs.index');
 
 });

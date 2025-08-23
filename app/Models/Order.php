@@ -69,5 +69,11 @@ class Order extends Model
         return $this->hasOne(InvoiceStore::class);
     }
 
+    public function currency()
+    {
+        return $this->belongsTo(Currency::class);
+    }
+
+
 
 }
