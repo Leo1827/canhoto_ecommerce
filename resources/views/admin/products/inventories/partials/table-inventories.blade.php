@@ -15,7 +15,7 @@
         @foreach ($product->inventories as $inventory)
             <tr class="border-t hover:bg-gray-50">
                 <td class="px-4 py-2">{{ $inventory->name }}</td>
-                <td class="px-4 py-2">R${{ number_format($inventory->price, 0, ',', '.') }}</td>
+                <td class="px-4 py-2">€{{ number_format($inventory->price, 0, ',', '.') }}</td>
                 <td class="px-4 py-2">{{ $inventory->quantity }}</td>
                 <td class="px-4 py-2">{{ number_format($inventory->quantity * $inventory->price, 0, ',', '.') }}</td>
                 <td class="px-4 py-2">{{ $inventory->limited ? 'Sim' : 'Não' }}</td>

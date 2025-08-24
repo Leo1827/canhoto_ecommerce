@@ -134,7 +134,23 @@ class MollieOrderController extends Controller
                     'currency_id' => $checkoutData['currency_id'],
                 ]);
 
+                // ✅ Descontar stock antes de crear los ítems
                 foreach (Auth::user()->cartItems as $item) {
+                    $inventory = \App\Models\ProductInventory::find($item->inventory_id);
+
+                    if (!$inventory) {
+                        throw new \Exception('Inventario no encontrado para el producto: ' . $item->product->name);
+                    }
+
+                    if ($inventory->quantity < $item->quantity) {
+                        throw new \Exception('No hay suficiente stock para el producto: ' . $item->product->name);
+                    }
+
+                    // Descontar stock
+                    $inventory->quantity -= $item->quantity;
+                    $inventory->save();
+
+                    // Crear ítem de la orden
                     $order->items()->create([
                         'user_id' => Auth::id(),
                         'product_id' => $item->product_id,
