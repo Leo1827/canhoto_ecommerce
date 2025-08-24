@@ -2,20 +2,21 @@
 
     {{-- Video en todas las pantallas --}}
     <video autoplay muted loop playsinline class="absolute inset-0 w-full h-full object-cover videohome">
-        <source src="https://videos.pexels.com/video-files/3779636/3779636-hd_1920_1080_25fps.mp4" type="video/mp4">
+        <source src="https://videos.pexels.com/video-files/6356806/6356806-hd_1920_1080_30fps.mp4" type="video/mp4">
     </video>
 
     {{-- Overlay --}}
-    <div class="absolute inset-0 bg-white bg-opacity-50"></div>
+    <div class="absolute inset-0 bg-black bg-opacity-40"></div>
 
     {{-- Navbar --}}
     <nav id="navbar"
-        class="fixed top-0 left-0 right-0 flex justify-center items-center px-6 md:px-10 py-5 z-20">
+        class="fixed top-0 left-0 right-0 flex justify-center items-center px-6 md:px-10 py-5 z-20 transition-colors duration-300">
+
 
         <div class="flex items-center space-x-14">
 
             {{-- Menú izquierdo (solo desktop) --}}
-            <ul class="hidden md:flex space-x-10 text-sm uppercase tracking-widest text-gray-700">
+            <ul class="hidden md:flex space-x-10 text-sm uppercase tracking-widest text-white">
                 <li><a href="#vinho" class="hover:text-black">História</a></li>
                 <li><a href="#contato" class="hover:text-black">Contato</a></li>
             </ul>
@@ -23,12 +24,12 @@
             {{-- Logo --}}
             <div class="text-2xl font-serif font-semibold text-gray-900">
                 <a href="/">
-                    <img src="{{ asset('img/logoblack.png') }}" alt="Canhoto Premium" class="w-[200px]">
+                    <img src="{{ asset('img/logo.png') }}" alt="Canhoto Premium" class="w-[200px]">
                 </a>
             </div>
 
             {{-- Menú derecho (solo desktop) --}}
-            <ul class="hidden md:flex space-x-10 text-sm uppercase tracking-widest text-gray-700">
+            <ul class="hidden md:flex space-x-10 text-sm uppercase tracking-widest text-white">
                 @auth
                     @if(Auth::user()->usertype == 'user')
                         <li><a href="{{ route('products.user.store') }}" class="hover:text-black">Loja</a></li>
@@ -54,7 +55,7 @@
 
             {{-- Botón hamburguesa (solo mobile) --}}
             <div class="md:hidden">
-                <button id="menu-btn" class="text-gray-800 focus:outline-none">
+                <button id="menu-btn" class="text-gray-400 focus:outline-none">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none"
                         viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round"
@@ -65,6 +66,7 @@
         </div>
     </nav>
 
+    {{-- Menu mobile desplegable --}}
     <!-- Menú Mobile Desplegable -->
     <div id="mobile-menu"
         class="hidden fixed top-20 left-6 right-6 bg-white bg-opacity-90 backdrop-blur-md shadow-2xl rounded-3xl px-8 py-6 z-50">
@@ -119,12 +121,12 @@
     {{-- Contenido central --}}
     <div class="relative z-10 flex flex-col items-center justify-center h-full text-center px-4">
         <h1 data-aos="fade-up"
-            class="text-3xl sm:text-4xl md:text-5xl font-serif italic text-gray-800 mb-6 leading-tight">
-            Exclusividade. Coleções Limitadas. Excelência.
+            class="text-3xl sm:text-4xl md:text-5xl font-serif italic text-gray-400 mb-6 leading-tight">
+            Canhoto Premium é a curadoria definitiva de vinhos raros e exclusivos, voltada para colecionadores, apreciadores e investidores exigentes.
         </h1>
         <a data-aos="fade-up"
            href="{{ route('login') }}"
-           class="border border-gray-800 text-gray-800 rounded-full hover:bg-gray-800 hover:text-white px-8 py-3 uppercase text-sm tracking-widest transition">
+           class="border border-gray-400 text-gray-400 rounded-full hover:bg-gray-800 hover:text-white px-8 py-3 uppercase text-sm tracking-widest transition">
             Descobrir
         </a>
     </div>
@@ -132,7 +134,7 @@
     {{-- Flecha scroll --}}
     <div class="absolute bottom-6 left-0 right-0 flex justify-center animate-bounce z-10">
         <a href="#vinho">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-gray-800" fill="none"
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-gray-400" fill="none"
                  viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
             </svg>

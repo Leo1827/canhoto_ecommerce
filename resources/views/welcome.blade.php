@@ -10,10 +10,26 @@
 
 @section('style')
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-
+    <style>
+        /* Cambiar fondo del nav al hacer scroll */
+        #navbar.navbar-scrolled {
+            background-color: rgba(0, 0, 0, 0.8); /* Fondo oscuro semitransparente */
+        }
+        
+        /* Cambiar color de los links cuando el nav está scrolleado */
+        #navbar.navbar-scrolled ul li a {
+            color: #fff; /* blanco si quieres */
+        }
+        
+        #navbar.navbar-scrolled ul li a:hover {
+            color: #f3f3f3; /* opcional: amarillo al hover */
+        }
+    
+    </style> 
 @endsection
 
 @section('content')
+
 
     @include('home')
 
@@ -23,11 +39,11 @@
         <div id="vinho" class="max-w-4xl mx-auto text-center px-4">
             <h2 data-aos="fade-up"
                 class="text-3xl sm:text-4xl md:text-5xl font-light text-gray-900 mb-6 sm:mb-8">
-                Uma visão. Um vinho.
+                A ponte entre grandes vinhos e grandes investimentos.
             </h2>
             <p data-aos="fade-up"
             class="italic text-lg sm:text-xl text-gray-700 mb-6 sm:mb-8 leading-relaxed">
-                “Para mim, o vinho é paixão. É família e amigos. É calor de coração e generosidade de espírito.”
+                “Canhoto Premium é uma curadoria exclusiva de vinhos de alto valor, voltada para investidores que reconhecem o potencial de valorização de safras raras, formatos especiais e rótulos icônicos. Oferecemos acesso restrito a oportunidades únicas no mercado internacional de vinhos finos  com procedência garantida, assessoria personalizada e visão patrimonial”
             </p>
 
             <div class="flex justify-center">
@@ -99,7 +115,7 @@
             <path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7"/>
         </svg>
     </button>
-
+    
     @include('components.verify-age-modal')
 
 @endsection
@@ -121,7 +137,7 @@
 
         // AOS
         AOS.init({
-            duration: 200,
+            duration: 1200,
             once: true,
             easing: 'ease-in-out',
         });

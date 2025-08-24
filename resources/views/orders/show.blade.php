@@ -19,10 +19,17 @@
                     <p><strong>Total:</strong> €{{ number_format($order->total, 2) }}</p>
                     <p><strong>Método de Pagamento:</strong> {{ $order->payment_method }}</p>
                     <p><strong>Status:</strong>
-                        <span class="bg-green-300 px-2 p-1 rounded-md">
+                        <span class="px-2 py-1 rounded-md text-white font-semibold
+                            @if($order->status == 'paid') bg-green-600
+                            @elseif($order->status == 'cancelled') bg-red-600
+                            @elseif($order->status == 'shipped') bg-blue-600
+                            @elseif($order->status == 'delivered') bg-purple-600
+                            @else bg-gray-400
+                            @endif">
                             {{ ucfirst($order->status) }}
                         </span>
                     </p>
+
                     <p><strong>Comentário:</strong> {{ ucfirst($order->user_comment) }}</p>
                 </div>
 
@@ -48,7 +55,7 @@
                 <thead>
                     <tr>
                         <th class="border-b pb-2">Produto</th>
-                        <th class="border-b pb-2">Quantidade</th>
+                        <th class="border-b pb-2">#</th>
                         <th class="border-b pb-2">Preço Unitário</th>
                         <th class="border-b pb-2">Total</th>
                     </tr>
@@ -64,6 +71,26 @@
                     @endforeach
                 </tbody>
             </table>
+
+            <!-- Resumo dos valores -->
+            <div class="mt-6 border-t pt-4">
+                <p class="flex justify-between text-sm text-gray-700">
+                    <span>Subtotal:</span>
+                    <span>€{{ number_format($order->subtotal ?? 0, 2) }}</span>
+                </p>
+                <p class="flex justify-between text-sm text-gray-700">
+                    <span>Impostos:</span>
+                    <span>€{{ number_format($order->tax ?? 0, 2) }}</span>
+                </p>
+                <p class="flex justify-between text-sm text-gray-700">
+                    <span>Envio:</span>
+                    <span>€{{ number_format($order->shipping_cost ?? 0, 2) }}</span>
+                </p>
+                <p class="flex justify-between text-lg font-bold text-gray-900 mt-2">
+                    <span>Total:</span>
+                    <span>€{{ number_format($order->total, 2) }}</span>
+                </p>
+            </div>
         </div>
 
         <div class="bg-white p-6 rounded-2xl shadow-lg mb-6">

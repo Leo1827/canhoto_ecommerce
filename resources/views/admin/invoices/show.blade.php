@@ -82,19 +82,19 @@
                 <tfoot class="bg-gray-50">
                     <tr>
                         <td colspan="4" class="px-4 py-2 text-right font-semibold">Subtotal:</td>
-                        <td class="px-4 py-2 text-right">R${{ number_format($invoice->order->subtotal, 2) }}</td>
+                        <td class="px-4 py-2 text-right">€{{ number_format($invoice->order->subtotal, 2) }}</td>
                     </tr>
                     <tr>
                         <td colspan="4" class="px-4 py-2 text-right font-semibold">Frete:</td>
-                        <td class="px-4 py-2 text-right">R${{ number_format($invoice->order->shipping_cost, 2) }}</td>
+                        <td class="px-4 py-2 text-right">€{{ number_format($invoice->order->shipping_cost, 2) }}</td>
                     </tr>
                     <tr>
                         <td colspan="4" class="px-4 py-2 text-right font-semibold">Impostos:</td>
-                        <td class="px-4 py-2 text-right">R${{ number_format($invoice->order->tax, 2) }}</td>
+                        <td class="px-4 py-2 text-right">€{{ number_format($invoice->order->tax, 2) }}</td>
                     </tr>
                     <tr>
                         <td colspan="4" class="px-4 py-2 text-right font-bold">Total:</td>
-                        <td class="px-4 py-2 text-right font-bold">R${{ number_format($invoice->order->total, 2) }}</td>
+                        <td class="px-4 py-2 text-right font-bold">€{{ number_format($invoice->order->total, 2) }}</td>
                     </tr>
                 </tfoot>
             </table>

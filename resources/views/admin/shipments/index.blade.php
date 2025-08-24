@@ -1,32 +1,59 @@
-@extends('layouts.app')
+@extends('admin.layout.home')
 
 @section('content')
-<div class="container mx-auto px-4">
-    <h1 class="text-xl font-bold mb-4">New Shipment</h1>
+<div class="container mx-auto px-4 py-6">
+    <h1 class="text-2xl font-bold text-gray-800 mb-6">📦 Acompanhamento de encomendas</h1>
 
-    <form action="{{ route('shipments.store') }}" method="POST" class="bg-white p-6 shadow rounded">
-        @csrf
-        <div class="mb-4">
-            <label class="block font-semibold">Invoice</label>
-            <select name="invoice_id" class="w-full border rounded p-2" required>
-                @foreach($invoices as $invoice)
-                    <option value="{{ $invoice->id }}">{{ $invoice->invoice_number }}</option>
-                @endforeach
-            </select>
+    @if(session('success'))
+        <div class="bg-green-100 text-green-700 p-3 rounded mb-4">
+            {{ session('success') }}
         </div>
-        <div class="mb-4">
-            <label class="block font-semibold">Tracking Number</label>
-            <input type="text" name="tracking_number" class="w-full border rounded p-2" required>
-        </div>
-        <div class="mb-4">
-            <label class="block font-semibold">Status</label>
-            <select name="status" class="w-full border rounded p-2">
-                <option value="pending">Pending</option>
-                <option value="shipped">Shipped</option>
-                <option value="delivered">Delivered</option>
-            </select>
-        </div>
-        <button class="bg-green-500 text-white px-4 py-2 rounded">Save</button>
-    </form>
+    @endif
+
+    <div class="bg-white shadow rounded-2xl overflow-hidden p-2">
+        <table id="shipmentsTable" class="w-full table-auto border-collapse">
+            <thead class="bg-gray-100 text-gray-700">
+                <tr>
+                    <th class="px-4 py-3 text-left"># Pedido</th>
+                    <th class="px-4 py-3">Cliente</th>
+                    <th class="px-4 py-3">E-mail</th>
+                    <th class="px-4 py-3">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse($users as $user)
+                    <tr class="border-b hover:bg-gray-50">
+                        <td class="px-4 py-3 font-semibold">#{{ $user->id }}</td>
+                        <td class="px-4 py-3">{{ $user->name }}</td>
+                        <td class="px-4 py-3">
+                            @php
+                                $lastOrder = $user->orders->first();
+                            @endphp
+                            @if($lastOrder)
+                                <span class="px-2 py-1 rounded text-sm" >
+                                    {{ $user->email }}
+                                    
+                                </span>
+                            @endif
+                        </td>
+                        <td class="px-4 py-3 flex space-x-2">
+                            <a href="{{ route('admin.shipments.user_orders', $user->id) }}"
+                            class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 text-sm">
+                                Ver Facturas/Pedidos
+                            </a>
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="5" class="px-4 py-3 text-center text-gray-500">
+                            No hay usuarios con pedidos en seguimiento.
+                        </td>
+                    </tr>
+                @endforelse
+
+            </tbody>
+        </table>
+    </div>
+
 </div>
 @endsection

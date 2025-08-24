@@ -104,7 +104,7 @@ class SubscriptionMollieController extends Controller
             $payment = Mollie::api()->payments->get($order->payment_id);
 
             if (!$payment->isPaid()) {
-                return redirect()->route('subscription.checkout')->with('error', 'El pago no fue completado.');
+                return redirect()->route('plan.index')->with('error', 'El pago no fue completado.');
             }
 
             $plan = Plan::findOrFail($order->plan_id);

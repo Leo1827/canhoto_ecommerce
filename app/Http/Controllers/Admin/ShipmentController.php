@@ -5,15 +5,23 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use Illuminate\Http\Request;
+use App\Models\OrderStatusHistory;
 
 class ShipmentController extends Controller
 {
-    //
     public function index()
     {
-        $orders = Order::whereIn('status', ['pending', 'shipped'])->latest()->paginate(15);
-        return view('admin.shipments.index', compact('orders'));
+        $users = \App\Models\User::whereHas('orders', function ($query) {
+            $query->whereIn('status', ['paid','pending', 'shipped']);
+        })
+        ->with(['orders' => function ($query) {
+            $query->whereIn('status', ['paid','pending', 'shipped'])->latest();
+        }])
+        ->paginate(15);
+
+        return view('admin.shipments.index', compact('users'));
     }
+
 
     public function show(Order $order)
     {
@@ -21,38 +29,45 @@ class ShipmentController extends Controller
         return view('admin.shipments.show', compact('order'));
     }
 
-    public function edit(Order $order)
+    public function userOrders($id)
     {
-        return view('admin.shipments.edit', compact('order'));
+        $user = \App\Models\User::findOrFail($id);
+
+        // Traemos todos los pedidos con su factura
+        $orders = \App\Models\Order::where('user_id', $user->id)
+            ->with('invoice')
+            ->latest()
+            ->get();
+
+        return view('admin.shipments.user_orders', compact('user', 'orders'));
     }
 
-    public function update(Request $request, Order $order)
+    public function storeStatus(Request $request, Order $order)
     {
         $request->validate([
-            'status' => 'required|string|in:pending,shipped,cancelled',
-            'description' => 'nullable|string'
+            'status' => 'required|in:shipped,delivered,cancelled',
+            'description' => 'nullable|string|max:255',
         ]);
 
-        $order->update([
-            'status' => $request->status,
-            'shipped_at' => $request->status === 'shipped' ? now() : $order->shipped_at,
-            'cancelled_at' => $request->status === 'cancelled' ? now() : $order->cancelled_at,
-        ]);
-
+        // Guardar no histórico
         $order->statusHistories()->create([
             'status' => $request->status,
-            'description' => $request->description ?? "Cambio de estado desde admin",
+            'description' => $request->description,
             'changed_at' => now(),
         ]);
 
-        return redirect()->route('admin.shipments.index')->with('success', 'Estado de envío actualizado');
+        // Opcional: atualizar status principal do pedido
+        $order->update(['status' => $request->status]);
+
+        return back()->with('success', 'Novo status adicionado com sucesso!');
     }
 
-    public function destroy(Order $order)
+    public function destroy($id)
     {
-        $order->statusHistories()->delete();
-        $order->update(['status' => 'pending', 'shipped_at' => null, 'cancelled_at' => null]);
+        $history = OrderStatusHistory::findOrFail($id);
+        $history->delete();
 
-        return back()->with('success', 'Seguimiento eliminado');
+        return back()->with('success', 'Histórico excluído com sucesso!');
     }
+
 }
