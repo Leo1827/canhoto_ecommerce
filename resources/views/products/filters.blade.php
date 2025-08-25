@@ -24,7 +24,7 @@
     x-show="openFilters || window.innerWidth >= 768"
     x-transition
     >
-    <form method="GET" action="{{ route('products.user.store') }}">
+    <form id="filterForm" method="GET" action="{{ route('products.user.store') }}">
         <h3 class="text-xl font-semibold text-[#4B0D0D] mb-6">Filtro</h3>
 
         <!-- Tipo de Vino -->
@@ -127,6 +127,27 @@
 </aside>
 
 <script>
+
+    const filterForm = document.getElementById('filterForm');
+
+    filterForm.addEventListener('submit', function(e) {
+        e.preventDefault(); // detener envío momentáneamente
+        try {
+            fbq('track', 'Search', {
+                content_ids: [], 
+                content_type: 'product',
+                value: null,
+                currency: 'EUR'
+            });
+        } catch (err) {
+            console.warn('Facebook Pixel no cargado:', err);
+        }
+
+        // esperar 200ms antes de enviar el form
+        setTimeout(() => {
+            filterForm.submit();
+        }, 200);
+    });
     const minRange = document.getElementById("min-range");
     const maxRange = document.getElementById("max-range");
     const minValue = document.getElementById("min-value");
@@ -161,4 +182,5 @@
 
     // Inicializar
     updateRange();
+
 </script>

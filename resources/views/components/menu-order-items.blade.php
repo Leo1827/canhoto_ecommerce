@@ -31,7 +31,7 @@
         </div>
     </div>
     <!-- Botón del carrito -->
-    @if (!request()->routeIs('profile.edit'))
+    @if (!request()->routeIs('profile.edit') && !request()->routeIs(['checkout.index', 'checkout.waiting_room']))
         <button @click="$store.cart.openCart = true" class="relative">
             <!-- Icono -->
             <svg class="w-6 h-6 text-[#4B0D0D] hover:text-[#9B1C1C] transition" fill="none"
@@ -47,7 +47,8 @@
             ></span>
         </button>
 
-         @include('components.cart-order-items')
+        @include('components.cart-order-items')
     @endif
+
 
 </div>
