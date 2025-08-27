@@ -248,15 +248,18 @@ Route::middleware(['auth','adminMiddleware'])->group(function(){
         Route::delete('/admin/shipments/history/{history}', [ShipmentController::class, 'destroy'])->name('admin.shipments.destroy');
 
     // CRUD Customers
-    Route::get('/customers', [CustomerController::class, 'index'])->name('admin.customers.index');
-    Route::get('/customers/create', [CustomerController::class, 'create'])->name('customers.create');
-    Route::post('/customers', [CustomerController::class, 'store'])->name('customers.store');
-    Route::get('/customers/{customer}', [CustomerController::class, 'show'])->name('customers.show');
-    Route::get('/customers/{customer}/edit', [CustomerController::class, 'edit'])->name('customers.edit');
-    Route::put('/customers/{customer}', [CustomerController::class, 'update'])->name('customers.update');
-    Route::delete('/customers/{customer}', [CustomerController::class, 'destroy'])->name('customers.destroy');
+        Route::get('admin/customers', [CustomerController::class, 'index'])->name('admin.customers.index');
+        Route::get('admin/customers/create', [CustomerController::class, 'create'])->name('admin.customers.create');
+        Route::post('/customers', [CustomerController::class, 'store'])->name('customers.store');
+        Route::get('admin/customers/{user}', [CustomerController::class, 'showAddress'])->name('admin.customers.showAddress');
+        Route::post('admin/customers/{user}/addresses', [CustomerController::class, 'storeAddress'])->name('customers.addresses.store');
+        Route::get('admin/customers/{user}/edit', [CustomerController::class, 'edit'])->name('admin.customers.edit');
+        Route::put('/customers/{user}', [CustomerController::class, 'update'])->name('customers.update');
+        Route::delete('/customers/{user}', [CustomerController::class, 'destroy'])->name('customers.destroy');
+        // address delete
+        Route::delete('admin/customers/{user}/addresses/{address}', [CustomerController::class, 'destroyAddress'])->name('customers.addresses.destroy');
 
     // Logs de actividad
-    Route::get('activity-logs', [ActivityLogController::class, 'index'])->name('admin.activity_logs.index');
+    Route::get('activity-logs', [ActivityLogController::class, 'index'])->name('admin.activity_logs.index'); 
 
 });

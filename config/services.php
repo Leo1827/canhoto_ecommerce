@@ -40,6 +40,14 @@ return [
         'client_secret' => env('GOOGLE_CLIENT_SECRET'),
         'redirect' => env('GOOGLE_REDIRECT_URI'),
     ],
+    'moloni' => [
+        'client_id' => env('MOLONI_CLIENT_ID'),
+        'client_secret' => env('MOLONI_CLIENT_SECRET'),
+        'redirect_uri' => env('MOLONI_REDIRECT_URI'),
+        'api' => env('MOLONI_API', 'https://api.moloni.pt/v1'),
+        'mode' => env('MOLONI_MODE', 'live'),
+    ],
+
 
 
 ];
