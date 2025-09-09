@@ -88,5 +88,11 @@ class Product extends Model
         return asset('storage/products/resized/' . $this->image);
     }
 
+    // Relación con Tax
+    public function tax()
+    {
+        return $this->belongsTo(Tax::class);
+    }
+
 
 }

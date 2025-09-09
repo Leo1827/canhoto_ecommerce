@@ -1,8 +1,8 @@
 @extends('admin.layout.home')
 
 @section('content')
-<div class="container mx-auto px-4 py-6">
-    <div class="mb-4">
+<div class="container mx-auto py-2">
+    <div class="mb-2">
         <a href="{{ route('admin.invoices.index') }}" 
         class="inline-flex items-center px-4 py-2 bg-gray-200 text-gray-700 rounded-lg shadow hover:bg-gray-300 transition">
             ← Voltar
@@ -21,7 +21,7 @@
                 <p><strong>Endereço de Cobrança:</strong> {{ $invoice->billing_address ?? 'N/A' }}</p>
             </div>
             <div>
-                <p><strong>Valor:</strong> R${{ number_format($invoice->amount, 2) }} {{ $invoice->currency }}</p>
+                <p><strong>Valor:</strong> €{{ number_format($invoice->amount, 2) }} {{ $invoice->currency }}</p>
                 <p><strong>Método de Pagamento:</strong> {{ ucfirst($invoice->payment_method) }}</p>
                 <p><strong>Status:</strong> 
                     <span class="px-2 py-1 rounded text-white 
@@ -58,7 +58,7 @@
                         <th class="px-4 py-2 text-left">Produto</th>
                         <th class="px-4 py-2 text-center">Quantidade</th>
                         <th class="px-4 py-2 text-right">Preço Unitário</th>
-                        <th class="px-4 py-2 text-right"></th>
+                        <th class="px-4 py-2 text-right">Imposto Produto</th>
                         <th class="px-4 py-2 text-right">Total</th>
                     </tr>
                 </thead>
@@ -67,15 +67,15 @@
                     <tr class="border-t">
                         <td class="px-4 py-2">{{ $item->label_item ?? $item->product->name }}</td>
                         <td class="px-4 py-2 text-center">{{ $item->quantity }}</td>
-                        <td class="px-4 py-2 text-right">R${{ number_format($item->price_unit, 2) }}</td>
+                        <td class="px-4 py-2 text-right">€{{ number_format($item->price_unit, 2) }}</td>
                         <td class="px-4 py-2 text-right">
-                            @if($item->discount_status)
-                                -{{ $item->discount }}%
-                            @else
-                                
+                            {{-- Mostrar valor del impuesto + porcentaje --}}
+                            €{{ number_format($item->tax_amount, 2) }}
+                            @if($item->tax_rate > 0)
+                                <span class="text-gray-500">({{ $item->tax_rate }}%)</span>
                             @endif
                         </td>
-                        <td class="px-4 py-2 text-right">R${{ number_format($item->total, 2) }}</td>
+                        <td class="px-4 py-2 text-right">€{{ number_format($item->total, 2) }}</td>
                     </tr>
                     @endforeach
                 </tbody>
@@ -89,7 +89,7 @@
                         <td class="px-4 py-2 text-right">€{{ number_format($invoice->order->shipping_cost, 2) }}</td>
                     </tr>
                     <tr>
-                        <td colspan="4" class="px-4 py-2 text-right font-semibold">Impostos:</td>
+                        <td colspan="4" class="px-4 py-2 text-right font-semibold">Impostos produto:</td>
                         <td class="px-4 py-2 text-right">€{{ number_format($invoice->order->tax, 2) }}</td>
                     </tr>
                     <tr>

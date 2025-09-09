@@ -232,6 +232,7 @@ Route::middleware(['auth','adminMiddleware'])->group(function(){
     // CRUD Orders
         Route::get('admin/orders', [OrderController::class, 'index'])->name('admin.orders.index'); 
         Route::post('/orders', [OrderController::class, 'store'])->name('admin.orders.store'); 
+        Route::get('/admin/users/search', [OrderController::class, 'search'])->name('admin.users.search');
 
     // CRUD Invoices
         Route::get('admin/invoices', [InvoiceController::class, 'index'])->name('admin.invoices.index');

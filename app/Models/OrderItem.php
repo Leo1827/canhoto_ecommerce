@@ -19,10 +19,12 @@ class OrderItem extends Model
         'discount',
         'price_unit',
         'total',
+        'tax_id',
+        'tax_rate',
+        'tax_amount',
     ];
 
     // Relaciones
-
     public function order(): BelongsTo
     {
         return $this->belongsTo(Order::class);
@@ -42,5 +44,11 @@ class OrderItem extends Model
     {
         return $this->belongsTo(ProductInventory::class, 'inventory_id');
     }
+
+    public function tax()
+    {
+        return $this->belongsTo(Tax::class);
+    }
+
 
 }

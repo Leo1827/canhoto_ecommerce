@@ -64,15 +64,49 @@
             </div>
             {{-- Texto --}}
             <div data-aos="fade-left">
-                <h3 class="text-2xl sm:text-3xl font-serif text-gray-900 mb-4 sm:mb-6">
-                    Uma expressão de tempo e lugar
-                </h3>
-                <p class="text-gray-700 leading-relaxed text-base sm:text-lg">
-                    A essência do tempo é expressa no Opus One pelo carácter de cada colheita.
-                    O lugar, frequentemente definido como terroir, representa a geografia, o clima
-                    e o elemento humano essencial que é captado no equilíbrio do vinho entre potência
-                    e finesse, estrutura e textura.
-                </p>
+            {{-- Benefícios em coluna --}}
+            <div class="mt-10 max-w-2xl mx-auto">
+                <h4 class="text-2xl font-semibold text-red-800 mb-6 text-center">
+                    Benefícios Exclusivos
+                </h4>
+
+                <ul class="space-y-6">
+                    <li class="flex items-center space-x-4">
+                        <div class="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-full bg-red-100 text-red-800 text-lg font-bold">
+                            ✓
+                        </div>
+                        <span class="text-gray-800 text-lg">Acesso antecipado a rótulos raros e de alta valorização</span>
+                    </li>
+
+                    <li class="flex items-center space-x-4">
+                        <div class="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-full bg-red-100 text-red-800 text-lg font-bold">
+                            ✓
+                        </div>
+                        <span class="text-gray-800 text-lg">Relatórios exclusivos e análises de mercado sobre vinhos finos</span>
+                    </li>
+
+                    <li class="flex items-center space-x-4">
+                        <div class="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-full bg-red-100 text-red-800 text-lg font-bold">
+                            ✓
+                        </div>
+                        <span class="text-gray-800 text-lg">Conteúdos educativos premium: eBooks, videoaulas e guias práticos</span>
+                    </li>
+
+                    <li class="flex items-center space-x-4">
+                        <div class="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-full bg-red-100 text-red-800 text-lg font-bold">
+                            ✓
+                        </div>
+                        <span class="text-gray-800 text-lg">Convites VIP para eventos, degustações e experiências únicas</span>
+                    </li>
+
+                    <li class="flex items-center space-x-4">
+                        <div class="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-full bg-red-100 text-red-800 text-lg font-bold">
+                            ✓
+                        </div>
+                        <span class="text-gray-800 text-lg">Rede qualificada de investidores e apaixonados por vinho</span>
+                    </li>
+                </ul>
+            </div>
 
                 {{-- Imagen debajo del párrafo --}}
                 <div data-aos="" class="my-12 sm:mb-8">
@@ -100,7 +134,7 @@
         <div class="relative z-10 flex flex-col items-center justify-center h-full text-center px-4">
             <h2 data-aos="fade-up"
                 class="text-3xl sm:text-4xl md:text-5xl font-serif italic text-white mb-6 sm:mb-8">
-                Exceptional California terroir
+                Acesso Exclusivo ao Universo dos Vinhos Finos como Investimento
             </h2>
             <a href="#"
             class="border border-white text-white hover:bg-white hover:text-black px-8 py-3 uppercase text-sm tracking-widest transition">

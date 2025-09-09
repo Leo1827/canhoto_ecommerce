@@ -6,6 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Garrafeira Canhoto - Vinhos Exclusivos</title>
     <link rel="icon" href="https://garrafeiracanhoto.com/cdn/shop/files/WhatsApp_Image_2021-11-21_at_13.03.06_a15641b8-7c29-48f0-b038-ea89f98c0e4b.jpg?crop=center&height=32&v=1691946283&width=32" type="image/png">
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -18,8 +19,6 @@
     {{-- gallery img --}}
     <!-- En tu layout o sección específica -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/dropzone.min.css" />
-    
-
 </head>
 <body class="flex bg-gray-100">
 
@@ -96,6 +95,6 @@
             toggleLimitedFields(); // al cargar
         });
     </script>
-
+    
 </body>
 </html>
