@@ -5,7 +5,7 @@
         {{-- Breadcrumb --}}
         <nav class="text-sm text-gray-600 mb-6 bg-white border rounded-xl p-3 shadow-sm" aria-label="Breadcrumb">
             <ol class="list-none flex items-center flex-wrap gap-2">
-                <li><a href="{{ route('admin.dashboard') }}" class="text-blue-600 hover:underline">Dashboard</a></li>
+                <li><a href="{{ route('admin.dashboard') }}" class="text-blue-600 hover:underline">Inicio</a></li>
                 <li>/</li>
                 <li><a href="{{ route('products.index') }}" class="text-blue-600 hover:underline">Produto</a></li>
                 <li>/</li>
@@ -13,7 +13,7 @@
             </ol>
         </nav>
 
-        <h2 class="text-2xl font-bold mb-6 text-gray-800">Criar Produto</h2>
+        <h2 class="text-2xl font-bold mb-6 text-gray-800 mx-4">Criar Produto</h2>
 
         @if ($errors->any())
             <div class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">

@@ -18,7 +18,7 @@ class InvoicePaid extends Mailable
 
     public function __construct(Order $order, InvoiceStore $invoice)
     {
-        $order->load('userAddress');
+        $order->load(['userAddress', 'items.product.tax']);
         $this->order = $order;
         $this->invoice = $invoice;
     }

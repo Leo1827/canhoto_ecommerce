@@ -3,7 +3,7 @@
 @extends('admin.layout.home')
 
 @section('content')
-    <div class="p-6">
+    <div class="p-2">
 
         @if(session('success'))
             <div class="alert alert-success mb-4">
@@ -11,7 +11,7 @@
             </div>
         @endif
         {{-- breadcrumb --}}
-        <nav class="text-sm text-gray-600 mb-4 bg-white border rounded-xl p-3 shadow-sm" aria-label="Breadcrumb">
+        <nav class="text-sm text-gray-600 mb-2 bg-white border rounded-xl p-3 shadow-sm" aria-label="Breadcrumb">
             <ol class="list-none inline-flex items-center space-x-2">
                 <li>
                     <a href="{{ route('admin.dashboard') }}" class="text-blue-600 hover:underline">Dashboard</a>
