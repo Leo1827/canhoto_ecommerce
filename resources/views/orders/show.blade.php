@@ -36,14 +36,16 @@
                 <!-- Coluna 2: Endereço de Faturamento -->
                 @if($order->address)
                     <div>
-                        <h2 class="text-lg font-semibold mb-2">Endereço de Faturamento</h2>
-                        <address class="not-italic text-gray-700 leading-snug">
-                            {{ $order->address->full_name ?? 'Nome indisponível' }}<br>
-                            {{ $order->address->address ?? '' }}<br>
-                            {{ $order->address->city ?? '' }}, {{ $order->address->state ?? '' }} - {{ $order->address->postal_code ?? '' }}<br>
-                            {{ $order->address->country ?? '' }}<br>
-                            Tel: {{ $order->address->phone ?? 'Indisponível' }}
-                        </address>
+                        <h2 class="text-lg font-semibold mb-3">Endereço de Faturamento</h2>
+                        <div class="space-y-1 text-gray-700">
+                            <p><strong>Nome:</strong> {{ $order->address->full_name ?? 'Nome indisponível' }}</p>
+                            <p><strong>Endereço:</strong> {{ $order->address->address ?? 'Não informado' }}</p>
+                            <p><strong>Cidade:</strong> {{ $order->address->city ?? 'Não informado' }}</p>
+                            <p><strong>Estado:</strong> {{ $order->address->state ?? 'Não informado' }}</p>
+                            <p><strong>Código Postal:</strong> {{ $order->address->postal_code ?? 'Não informado' }}</p>
+                            <p><strong>País:</strong> {{ $order->address->country ?? 'Não informado' }}</p>
+                            <p><strong>Telefone:</strong> {{ $order->address->phone ?? 'Indisponível' }}</p>
+                        </div>
                     </div>
                 @endif
             </div>
@@ -51,44 +53,62 @@
 
         <div class="bg-white p-6 rounded shadow mb-6">
             <h2 class="text-lg font-semibold mb-2">Itens</h2>
-            <table class="w-full text-sm text-left">
-                <thead>
+            <table class="w-full text-sm text-left border">
+                <thead class="bg-gray-100">
                     <tr>
-                        <th class="border-b pb-2">Produto</th>
-                        <th class="border-b pb-2">#</th>
-                        <th class="border-b pb-2">Preço Unitário</th>
-                        <th class="border-b pb-2">Total</th>
+                        <th class="border-b py-2 px-2">Produto</th>
+                        <th class="border-b py-2 px-2 text-center">Qtd</th>
+                        <th class="border-b py-2 px-2 text-right">Preço Unitário</th>
+                        <th class="border-b py-2 px-2 text-center">IVA</th>
+                        <th class="border-b py-2 px-2 text-right">Valor IVA</th>
+                        <th class="border-b py-2 px-2 text-right">Total c/ IVA</th>
                     </tr>
                 </thead>
                 <tbody>
+                    @php
+                        $totalTax = 0;
+                        $subtotal = 0;
+                    @endphp
+
                     @foreach($order->items as $item)
+                        @php
+                            $taxRate   = $item->tax_rate ?? 0;
+                            $taxValue  = $item->tax_amount ?? 0;
+                            $lineSubtotal = $item->price_unit * $item->quantity;
+                            $lineTotal    = $lineSubtotal + $taxValue;
+
+                            $subtotal += $lineSubtotal;
+                            $totalTax += $taxValue;
+                        @endphp
                         <tr>
-                            <td class="py-2">{{ $item->label_item ?? $item->product->name }}</td>
-                            <td class="py-2">{{ $item->quantity }}</td>
-                            <td class="py-2">€{{ number_format($item->price_unit, 2) }}</td>
-                            <td class="py-2">€{{ number_format($item->total, 2) }}</td>
+                            <td class="py-2 px-2">{{ $item->label_item ?? $item->product->name }}</td>
+                            <td class="py-2 px-2 text-center">{{ $item->quantity }}</td>
+                            <td class="py-2 px-2 text-right">€{{ number_format($item->price_unit, 2) }}</td>
+                            <td class="py-2 px-2 text-center">{{ $taxRate ? $taxRate.'%' : 'Isento' }}</td>
+                            <td class="py-2 px-2 text-right">€{{ number_format($taxValue, 2) }}</td>
+                            <td class="py-2 px-2 text-right">€{{ number_format($lineTotal, 2) }}</td>
                         </tr>
                     @endforeach
                 </tbody>
             </table>
 
             <!-- Resumo dos valores -->
-            <div class="mt-6 border-t pt-4">
-                <p class="flex justify-between text-sm text-gray-700">
-                    <span>Subtotal:</span>
-                    <span>€{{ number_format($order->subtotal ?? 0, 2) }}</span>
+            <div class="mt-6 border-t pt-4 space-y-1 text-sm">
+                <p class="flex justify-between text-gray-700">
+                    <span>Subtotal (s/ IVA):</span>
+                    <span>€{{ number_format($subtotal, 2) }}</span>
                 </p>
-                <p class="flex justify-between text-sm text-gray-700">
-                    <span>Impostos:</span>
-                    <span>€{{ number_format($order->tax ?? 0, 2) }}</span>
+                <p class="flex justify-between text-gray-700">
+                    <span>Total IVA:</span>
+                    <span>€{{ number_format($totalTax, 2) }}</span>
                 </p>
-                <p class="flex justify-between text-sm text-gray-700">
+                <p class="flex justify-between text-gray-700">
                     <span>Envio:</span>
                     <span>€{{ number_format($order->shipping_cost ?? 0, 2) }}</span>
                 </p>
                 <p class="flex justify-between text-lg font-bold text-gray-900 mt-2">
                     <span>Total:</span>
-                    <span>€{{ number_format($order->total, 2) }}</span>
+                    <span>€{{ number_format($subtotal + $totalTax + ($order->shipping_cost ?? 0), 2) }}</span>
                 </p>
             </div>
         </div>
