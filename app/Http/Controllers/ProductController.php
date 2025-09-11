@@ -132,6 +132,7 @@ class ProductController extends Controller
             'wineTypes' => WineType::all(),
             'vintages' => Vintage::all(),
             'conditions' => Condition::all(),
+            'taxes' => Tax::all(),
         ]);
     }
 

@@ -113,6 +113,19 @@
             <input type="number" name="stock" value="{{ old('stock', $product->stock) }}" class="{{ $inputClass }}">
         </div>
 
+        <div>
+            <label class="block text-sm font-medium text-gray-700">Imposto</label>
+            <select name="tax_id" class="{{ $inputClass }}">
+                <option value="">Selecione o imposto</option>
+                @foreach($taxes as $tax)
+                    <option value="{{ $tax->id }}" {{ old('tax_id', $product->tax_id) == $tax->id ? 'selected' : '' }}>
+                        {{ $tax->name }} ({{ $tax->percentage }}%)
+                    </option>
+                @endforeach
+            </select>
+        </div>
+
+
         <div class="md:col-span-2">
             <label class="block text-sm font-medium text-gray-700">Descrição</label>
             <textarea name="description" rows="4" class="{{ $inputClass }}">{{ old('description', $product->description) }}</textarea>
