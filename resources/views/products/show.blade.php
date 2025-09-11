@@ -6,7 +6,7 @@
     </x-slot>
 
     <div class="py-10 bg-[#]">
-        <div class="max-w-[1300px] mx-auto md:px-32 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-2 gap-10 items-start">
+        <div class="max-w-[1300px] mx-auto md:px-32 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-2 gap-5 items-start">
 
             <!-- Galería -->
             <div class="flex flex-col-reverse md:flex-row gap-4 items-start">
@@ -47,7 +47,19 @@
 
                 <div class="flex items-center space-x-4 mb-6">
                     <span class="text-2xl md:text-3xl font-bold text-[#4B0D0D]">
-                        €{{ number_format($product->price, 0, ',', '.') }}
+                        @php
+                            $taxRate = $product->tax->rate ?? 0;
+                            $priceWithTax = $product->price + ($product->price * ($taxRate / 100));
+                        @endphp
+
+                        <div class="flex flex-col mb-6">
+                            <span class="text-2xl md:text-3xl font-bold text-[#4B0D0D]">
+                                €{{ number_format($product->price, 2, ',', '.') }}
+                            </span>
+                            <span class="text-lg text-gray-500">
+                                €{{ number_format($priceWithTax, 2, ',', '.') }} (IVA {{ $taxRate }}%)
+                            </span>
+                        </div>
                     </span>
                     
                     @if($stock > 0)
@@ -69,6 +81,12 @@
                     <div><strong>Capacidad:</strong> {{ $product->capacity ?? '-' }}</div>
                     <div><strong>Casta:</strong> {{ $product->grape_variety ?? '-' }}</div>
                     <div><strong>Certificado:</strong> {{ $product->certification ?? '-' }}</div>
+
+                    <div class="col-span-2">
+                        <strong>IVA:</strong> 
+                        {{ $product->tax->name ?? 'No definido' }} 
+                        ({{ $product->tax->rate ?? '0' }}%)
+                    </div>
                 </div>
 
                 <p class="text-base md:text-lg text-[#6B4F4F] italic mb-4">

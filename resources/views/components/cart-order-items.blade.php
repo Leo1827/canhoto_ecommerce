@@ -39,6 +39,11 @@
 
                         <!-- Subtotal -->
                         <div x-text="'Subtotal: €' + (parseFloat(item.subtotal || 0)).toFixed(2)"></div>
+                        <div class="text-xs text-gray-600">
+                            IVA (<span x-text="item.tax_rate"></span>%): 
+                            €<span x-text="parseFloat(item.tax_amount || 0).toFixed(2)"></span>
+                        </div>
+
                     </div>
 
                     <!-- Botón eliminar -->
@@ -59,9 +64,28 @@
 
         <!-- Total -->
         <div class="px-6 py-4 border-t border-[#E5E7EB]">
-            <div class="flex items-center justify-between mb-4">
-                <span class="text-sm text-[#4B0D0D] font-medium">Total</span>
-                <span class="text-lg font-semibold text-[#4B0D0D]" x-text="'€ ' + $store.cart.cartTotal.toFixed(2)"></span>
+            <!-- Subtotal global -->
+            <div class="flex items-center justify-between">
+                <span class="text-sm text-[#4B0D0D] font-medium">Subtotal</span>
+                <span class="text-sm text-[#4B0D0D]" 
+                    x-text="'€ ' + $store.cart.cartItems.reduce((sum, i) => sum + parseFloat(i.subtotal || 0), 0).toFixed(2)">
+                </span>
+            </div>
+
+            <!-- IVA global -->
+            <div class="flex items-center justify-between">
+                <span class="text-sm text-[#4B0D0D] font-medium">IVA</span>
+                <span class="text-sm text-[#4B0D0D]" 
+                    x-text="'€ ' + $store.cart.cartItems.reduce((sum, i) => sum + parseFloat(i.tax_amount || 0), 0).toFixed(2)">
+                </span>
+            </div>
+
+            <!-- Total final -->
+            <div class="flex items-center justify-between border-t pt-2 mt-2 pb-1">
+                <span class="text-sm text-[#4B0D0D] font-bold">Total</span>
+                <span class="text-lg font-bold text-[#4B0D0D]" 
+                    x-text="'€ ' + $store.cart.cartItems.reduce((sum, i) => sum + parseFloat(i.subtotal || 0) + parseFloat(i.tax_amount || 0), 0).toFixed(2)">
+                </span>
             </div>
 
             <!-- Botón Finalizar Compra deshabilitado si no hay productos -->

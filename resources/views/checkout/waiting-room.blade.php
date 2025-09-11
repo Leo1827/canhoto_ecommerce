@@ -34,30 +34,38 @@
                             <div class="flex items-center gap-4">
                                 @if ($item->product->image)
                                     <img src="{{ asset('storage/products/resized/' . $item->product->image) }}"
-                                         alt="{{ $item->product->name }}"
-                                         class="w-16 h-16 object-cover rounded">
+                                        alt="{{ $item->product->name }}"
+                                        class="w-16 h-16 object-cover rounded">
                                 @endif
                                 <div>
                                     <p class="font-medium text-[#4B0D0D]">{{ $item->product->name }}</p>
                                     <p class="text-sm text-[#6B4F4F]">Quantidade: {{ $item->quantity }}</p>
+                                    <p class="text-sm text-[#6B4F4F]">
+                                        IVA ({{ $item->tax_rate }}%): € {{ number_format($item->tax_amount, 2) }}
+                                    </p>
                                 </div>
                             </div>
-                            <p class="text-[#4B0D0D] font-semibold">€ {{ number_format($item->subtotal, 2) }}</p>
+                            {{-- 👇 precio final con IVA incluido --}}
+                            <p class="text-[#4B0D0D] font-semibold">
+                                € {{ number_format($item->total_with_tax, 2) }}
+                            </p>
                         </div>
                     @endforeach
                 </div>
 
-                <div class="mt-6 text-right">
-                    <p class="text-lg font-bold text-[#4B0D0D]">Total: € {{ number_format($total, 2) }}</p>
-                </div>
                 <div class="mt-6 text-right space-y-1">
-                    <p class="text-[#4B0D0D] font-semibold text-base">Subtotal: € {{ number_format($total, 2) }}</p>
+                    <p class="text-[#4B0D0D] text-base">Subtotal: € {{ number_format($subtotal, 2) }}</p>
+                    <p class="text-[#4B0D0D] text-base">IVA: € {{ number_format($iva, 2) }}</p>
 
-                    @if($tax > 0)
-                        <p class="text-[#4B0D0D] text-base">Taxa de processamento ({{ ucfirst($paymentMethod) }}): € {{ number_format($tax, 2) }}</p>
+                    @if($paymentTax > 0)
+                        <p class="text-[#4B0D0D] text-base">
+                            Taxa de processamento ({{ ucfirst($paymentMethod) }}): € {{ number_format($paymentTax, 2) }}
+                        </p>
                     @endif
 
-                    <p class="text-lg font-bold text-[#4B0D0D]">Total a pagar: € {{ number_format($finalTotal, 2) }}</p>
+                    <p class="text-lg font-bold text-[#4B0D0D]">
+                        Total a pagar: € {{ number_format($finalTotal, 2) }}
+                    </p>
                 </div>
 
             </div>

@@ -25,9 +25,13 @@ class CartController extends Controller
                     'price_unit' => $item->price_unit,
                     'quantity' => $item->quantity,
                     'subtotal' => $item->subtotal,
+                    'tax_rate' => $item->tax_rate ?? 23, // fallback
+                    'tax_amount' => $item->tax_amount ?? ($item->subtotal * 0.23),
                 ];
             }),
-            'total' => $items->sum('subtotal'),
+            'total' => $items->sum(function ($i) {
+                return $i->subtotal + ($i->tax_amount ?? 0);
+            }),
         ]);
     }
 
@@ -44,7 +48,11 @@ class CartController extends Controller
         $price = $inventory->price;
         $quantity = $request->quantity;
 
-        // Buscar si ya existe en el carrito
+        // IVA Portugal (ejemplo fijo 23%)
+        $taxRate = 23;
+        $subtotal = $quantity * $price;
+        $taxAmount = $subtotal * ($taxRate / 100);
+
         $cartItem = CartItem::where('user_id', Auth::id())
             ->where('product_id', $request->product_id)
             ->where('inventory_id', $request->inventory_id)
@@ -53,6 +61,8 @@ class CartController extends Controller
         if ($cartItem) {
             $cartItem->quantity += $quantity;
             $cartItem->subtotal = $cartItem->quantity * $price;
+            $cartItem->tax_rate = $taxRate;
+            $cartItem->tax_amount = $cartItem->subtotal * ($taxRate / 100);
             $cartItem->save();
         } else {
             CartItem::create([
@@ -61,7 +71,9 @@ class CartController extends Controller
                 'inventory_id' => $request->inventory_id,
                 'price_unit' => $price,
                 'quantity' => $quantity,
-                'subtotal' => $quantity * $price,
+                'subtotal' => $subtotal,
+                'tax_rate' => $taxRate,
+                'tax_amount' => $taxAmount,
             ]);
         }
 

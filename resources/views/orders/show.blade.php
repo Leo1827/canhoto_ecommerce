@@ -19,13 +19,13 @@
                     <p><strong>Total:</strong> €{{ number_format($order->total, 2) }}</p>
                     <p><strong>Método de Pagamento:</strong> {{ $order->payment_method }}</p>
                     <p><strong>Status:</strong>
-                        <span class="px-2 py-1 rounded-md text-white font-semibold
+                        <span class='px-2 py-1 rounded-md text-white font-semibold
                             @if($order->status == 'paid') bg-green-600
                             @elseif($order->status == 'cancelled') bg-red-600
                             @elseif($order->status == 'shipped') bg-blue-600
                             @elseif($order->status == 'delivered') bg-purple-600
                             @else bg-gray-400
-                            @endif">
+                            @endif'>
                             {{ ucfirst($order->status) }}
                         </span>
                     </p>
@@ -37,7 +37,7 @@
                 @if($order->address)
                     <div>
                         <h2 class="text-lg font-semibold mb-3">Endereço de Faturamento</h2>
-                        <div class="space-y-1 text-gray-700">
+                        <div class=" text-gray-700">
                             <p><strong>Nome:</strong> {{ $order->address->full_name ?? 'Nome indisponível' }}</p>
                             <p><strong>Endereço:</strong> {{ $order->address->address ?? 'Não informado' }}</p>
                             <p><strong>Cidade:</strong> {{ $order->address->city ?? 'Não informado' }}</p>

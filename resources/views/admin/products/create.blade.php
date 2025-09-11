@@ -100,6 +100,18 @@
                 </div>
 
                 <div>
+                    <label class="block text-sm font-medium text-gray-700">Imposto (IVA)</label>
+                    <select name="tax_id" class="{{ $textInput }}">
+                        <option value="">-- Selecionar Imposto --</option>
+                        @foreach($taxes as $tax)
+                            <option value="{{ $tax->id }}" {{ old('tax_id') == $tax->id ? 'selected' : '' }}>
+                                {{ $tax->name }} ({{ $tax->rate }}%)
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div>
                     <label class="block text-sm font-medium text-gray-700">SKU</label>
                     <input type="text" name="sku" value="{{ old('sku') }}" class="{{ $textInput }}">
                 </div>

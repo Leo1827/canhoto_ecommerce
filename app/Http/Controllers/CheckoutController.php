@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\CartItem;
 use App\Models\PaymentMethod;
 use App\Models\UserAddress;
+use App\Models\OrderItem;
+use App\Models\Order;
 
 class CheckoutController extends Controller
 {
@@ -14,18 +16,33 @@ class CheckoutController extends Controller
     {
         $user = Auth::user();
 
-        $cartItems = CartItem::with(['product', 'inventory'])
+        // traemos los items de la orden activa del usuario
+        $cartItems = CartItem::with(['product.tax', 'inventory'])
             ->where('user_id', $user->id)
-            ->get();
+            ->get()
+            ->map(function ($item) {
+                // si ya lo calculaste al guardar en order_items, solo lo lees:
+                $item->tax_rate = $item->product->tax->rate ?? 0;
+                $item->tax_amount = ($item->subtotal * $item->tax_rate) / 100;
+                $item->total_with_tax = $item->subtotal + $item->tax_amount;
+                return $item;
+            });
 
-        $total = $cartItems->sum('subtotal');
+        $subtotal = $cartItems->sum('subtotal');
+        $iva = $cartItems->sum('tax_amount');
+        $total = $subtotal + $iva;
 
-        // Obtener métodos de pago activos directamente desde la base de datos
         $paymentMethods = PaymentMethod::where('is_active', 1)
             ->orderBy('order')
-            ->get(); // ahora tienes todos los datos, incluyendo `icon`
+            ->get();
 
-        return view('checkout.index', compact('cartItems', 'total', 'paymentMethods'));
+        return view('checkout.index', compact(
+            'cartItems',
+            'subtotal',
+            'iva',
+            'total',
+            'paymentMethods'
+        ));
     }
 
     public function waitingRoom(Request $request)
@@ -37,38 +54,49 @@ class CheckoutController extends Controller
             'user_comment' => 'nullable|string',
         ]);
 
-        // Obtener la dirección
         $address = UserAddress::find($validated['address_id']);
 
-        // Obtener los items del carrito con sus productos
+        // Obtener carrito con producto + tax
         $cartItems = CartItem::where('user_id', Auth::id())
-            ->with('product')
-            ->get();
+            ->with('product.tax')
+            ->get()
+            ->map(function ($item) {
+                $rate = $item->product->tax->rate ?? 0;
+                $subtotal = $item->quantity * $item->product->price;
+                $taxAmount = ($subtotal * $rate) / 100;
 
-        // Calcular el total
-        $total = $cartItems->sum(function ($item) {
-            return $item->quantity * $item->product->price;
-        });
+                $item->tax_rate = $rate;
+                $item->subtotal = $subtotal;
+                $item->tax_amount = $taxAmount;
+                $item->total_with_tax = $subtotal + $taxAmount;
 
-        // Simulación de comisión para PayPal (21%)
-        $tax = 0;
+                return $item;
+            });
+
+        // Totales globales
+        $subtotal = $cartItems->sum('subtotal');
+        $iva = $cartItems->sum('tax_amount');
+        $total = $subtotal + $iva;
+
+        // Comisión extra de PayPal
+        $paymentTax = 0;
         if ($validated['payment_method'] === 'paypal') {
-            $tax = $total * 0.21;
+            $paymentTax = $total * 0.21;
         }
 
-        $finalTotal = $total + $tax;
+        $finalTotal = $total + $paymentTax;
 
-        // 🔐 Guardar los datos en sesión para usarlos después del pago
+        // Guardar en sesión
         session([
             'checkout_data' => [
                 'address_id' => $validated['address_id'],
                 'payment_method' => $validated['payment_method'],
                 'user_comment' => $validated['user_comment'],
-                'currency_id' => 1, // ajusta si usas otro sistema
+                'currency_id' => 1,
                 'totals' => [
-                    'subtotal' => $total,
-                    'shipping' => 0, // si usas costo de envío, reemplázalo aquí
-                    'tax' => $tax,
+                    'subtotal' => $subtotal,
+                    'iva' => $iva,
+                    'payment_tax' => $paymentTax,
                     'total' => $finalTotal,
                 ],
             ]
@@ -79,14 +107,12 @@ class CheckoutController extends Controller
             'address' => $address,
             'userComment' => $validated['user_comment'],
             'cartItems' => $cartItems,
-            'total' => $total,
-            'tax' => $tax,
+            'subtotal' => $subtotal,
+            'iva' => $iva,
+            'paymentTax' => $paymentTax,
             'finalTotal' => $finalTotal,
         ]);
     }
-
-
-
 
 
 }

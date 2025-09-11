@@ -9,6 +9,7 @@ use App\Models\Region;
 use App\Models\WineType;
 use App\Models\Vintage;
 use App\Models\Condition;
+use App\Models\Tax;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
@@ -61,6 +62,7 @@ class ProductController extends Controller
             'wineTypes' => WineType::all(),
             'vintages' => Vintage::all(),
             'conditions' => Condition::all(),
+            'taxes' => Tax::all(),
         ]);
     }
 
@@ -77,6 +79,7 @@ class ProductController extends Controller
             'price' => 'required|numeric|min:0',
             'stock' => 'required|integer|min:0',
             'image' => 'nullable|image|max:2048',
+            'tax_id' => 'nullable|exists:taxes,id',
         ], [
             'required' => 'O campo :attribute é obrigatório.',
             'exists' => 'O :attribute selecionado é inválido.',
