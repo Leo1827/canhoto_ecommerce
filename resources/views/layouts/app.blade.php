@@ -80,6 +80,7 @@
                 const preloader = document.getElementById('preloader');
                 preloader.classList.add('fade-out');
             });
+
         </script>
         <script>
             function updateMainImage(src) {
@@ -87,6 +88,8 @@
                 mainImage.src = src;
             }
         </script>
+
+
 
     </body>
 

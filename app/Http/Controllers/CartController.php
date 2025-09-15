@@ -12,12 +12,15 @@ class CartController extends Controller
 
     public function json()
     {
-        $items = CartItem::with('product', 'inventory')
+        $items = CartItem::with('product.tax', 'inventory')
             ->where('user_id', Auth::id())
             ->get();
 
         return response()->json([
             'items' => $items->map(function ($item) {
+                $rate = $item->tax_rate ?? ($item->product->tax->rate ?? 0);
+                $taxAmount = $item->tax_amount ?? ($item->subtotal * $rate / 100);
+
                 return [
                     'id' => $item->id,
                     'name' => optional($item->product)->name ?? 'Produto removido',
@@ -25,8 +28,8 @@ class CartController extends Controller
                     'price_unit' => $item->price_unit,
                     'quantity' => $item->quantity,
                     'subtotal' => $item->subtotal,
-                    'tax_rate' => $item->tax_rate ?? 23, // fallback
-                    'tax_amount' => $item->tax_amount ?? ($item->subtotal * 0.23),
+                    'tax_rate' => $rate,
+                    'tax_amount' => $taxAmount,
                 ];
             }),
             'total' => $items->sum(function ($i) {

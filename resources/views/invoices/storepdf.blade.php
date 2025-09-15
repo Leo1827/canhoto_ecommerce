@@ -125,9 +125,11 @@
                     @php
                         $taxRate   = $item->tax_rate ?? 0;
                         $taxValue  = $item->tax_amount ?? 0;
-                        $lineTotal = ($item->price_unit * $item->quantity) + $taxValue;
+                        $lineSubtotal = $item->price_unit * $item->quantity;
+                        $lineTotal    = $lineSubtotal + $taxValue;
+
+                        $subtotal += $lineSubtotal;
                         $totalTax += $taxValue;
-                        $subtotal += ($item->price_unit * $item->quantity);
                     @endphp
                     <tr>
                         <td>{{ $item->label_item ?? $item->product->name }}</td>
@@ -142,12 +144,27 @@
         </table>
     </div>
 
+    @php
+        $shipping = $invoice->order->shipping_cost ?? 0;
+        $totalLocal = $subtotal + $totalTax + $shipping;
+
+        $totalReal = strtolower($invoice->order->payment_method) === 'paypal' && $invoice->order->payment_provider_total
+            ? $invoice->order->payment_provider_total
+            : $totalLocal;
+    @endphp
+
     <div class="totals">
         <p><strong>Subtotal (s/ IVA):</strong> € {{ number_format($subtotal, 2, ',', '.') }}</p>
         <p><strong>Total IVA:</strong> € {{ number_format($totalTax, 2, ',', '.') }}</p>
-        <p><strong>Portes de envio:</strong> € {{ number_format($invoice->order->shipping_cost, 2, ',', '.') }}</p>
+        <p><strong>Portes de envio:</strong> € {{ number_format($shipping, 2, ',', '.') }}</p>
+
+        @if(strtolower($invoice->order->payment_method) === 'paypal' && $invoice->order->payment_provider_total)
+            <p><strong>Comisión PayPal:</strong> € {{ number_format($invoice->order->payment_provider_fee ?? 0, 2, ',', '.') }}</p>
+            <p><strong>ID Transacción:</strong> {{ $invoice->order->payment_provider_id }}</p>
+        @endif
+
         <hr>
-        <p><strong>Total a pagar:</strong> € {{ number_format($subtotal + $totalTax + $invoice->order->shipping_cost, 2, ',', '.') }} {{ $invoice->currency }}</p>
+        <p><strong>Total a pagar:</strong> € {{ number_format($totalReal, 2, ',', '.') }} {{ $invoice->currency }}</p>
         <p><strong>Método de pagamento:</strong> {{ ucfirst($invoice->payment_method) }}</p>
     </div>
 

@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\InvoicePaid;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Arr;
 
 class PaypalOrderController extends Controller
 {
@@ -35,59 +36,100 @@ class PaypalOrderController extends Controller
         // Log de actividad
         \App\Models\ActivityLog::create([
             'user_id' => Auth::id(),
-            'action' => 'Processo de pagamento iniciado.',
-            'description' => 'O usuário foi redirecionado para o PayPal.',
+            'action' => 'Proceso de pago iniciado.',
+            'description' => 'El usuario fue redirigido para pagar por PayPal.',
         ]);
 
-        // Cálculo de totales
-        $cartItems = Auth::user()->cartItems;
-        $subtotal = $cartItems->sum(fn($item) => $item->subtotal);
-        $shipping = 5.00;
-        $tax = $subtotal * 0.21;
-        $total = $subtotal + $shipping + $tax;
+        $user = Auth::user();
+        $cartItems = $user->cartItems()->with('product', 'product.tax', 'inventory')->get();
 
-        // Obtener método de pago
+        if ($cartItems->isEmpty()) {
+            return redirect()->route('checkout.index')->with('error', 'El carrito está vacío.');
+        }
+
+        $currency = \App\Models\Currency::where('code', config('paypal.currency', 'EUR'))->first();
+        $currencyCode = $currency->code ?? 'EUR';
+
+        // Construir items para PayPal y cache
+        $paypalItems = [];
+        $checkoutItems = [];
+        $item_total = 0.0;
+        $tax_total = 0.0;
+        $shipping = 0.00;
+
+        foreach ($cartItems as $ci) {
+            $product = $ci->product;
+            $inventory = $ci->inventory;
+            $qty = (int) $ci->quantity;
+
+            $unitPrice = $ci->price_unit ?? ($inventory?->price ?? $product->price);
+            $unitPrice = floatval($unitPrice);
+
+            $taxRate = $product->tax->rate ?? 0;
+            $unitTax = round($unitPrice * ($taxRate / 100), 2);
+
+            $subtotal = round($unitPrice * $qty, 2);
+            $taxAmount = round($unitTax * $qty, 2);
+
+            $item_total += $subtotal;
+            $tax_total += $taxAmount;
+
+            $paypalItems[] = [
+                'name' => Str::limit($product->name, 127),
+                'unit_amount' => [
+                    'currency_code' => $currencyCode,
+                    'value' => number_format($unitPrice, 2, '.', ''),
+                ],
+                'tax' => [
+                    'currency_code' => $currencyCode,
+                    'value' => number_format($unitTax, 2, '.', ''),
+                ],
+                'quantity' => (string)$qty,
+                'sku' => $product->sku ?? (string)$product->id,
+            ];
+
+            $checkoutItems[] = [
+                'product_id' => $product->id,
+                'inventory_id' => $ci->inventory_id,
+                'name' => $product->name,
+                'price_unit' => number_format($unitPrice, 2, '.', ''),
+                'quantity' => $qty,
+                'subtotal' => number_format($subtotal, 2, '.', ''),
+                'tax_rate' => $taxRate,
+                'tax_amount' => number_format($taxAmount, 2, '.', ''),
+            ];
+        }
+
+        // Total base (subtotal + impuestos + envío)
+        $totalBase = round($item_total + $tax_total + $shipping, 2);
+
+        // 👉 Comisión PayPal (ejemplo: 3.49% + 0.35 fijo)
+        $paypalFee = round(($totalBase * 0.0349) + 0.35, 2);
+
+        // 👉 Total final con comisión incluida
+        $total = round($totalBase + $paypalFee, 2);
+
+        // Configuración PayPal
         $method = \App\Models\PaymentMethod::where('code', $request->payment_method)->first();
-
         if (!$method) {
-            return redirect()->route('checkout.index')->with('error', 'Método de pagamento não encontrado.');
+            return redirect()->route('checkout.index')->with('error', 'Método de pago no encontrado.');
         }
 
-        // Convertir config a array si viene como string JSON
-        if (is_string($method->config)) {
-            $config = json_decode($method->config, true);
-        } elseif (is_array($method->config)) {
-            $config = $method->config;
-        } elseif (is_object($method->config)) {
-            $config = (array) $method->config;
-        } else {
-            $config = [];
-        }
+        $config = is_string($method->config) ? json_decode($method->config, true) : (array) $method->config;
 
-
-        if (
-            empty($config['client_id']) ||
-            empty($config['secret']) ||
-            empty($config['mode'])
-        ) {
-            return redirect()->route('checkout.index')->with('error', 'As configurações do PayPal são inválidas ou incompletas.');
-        }
-
-        
         $paypalConfig = [
-            'mode' => strtolower($config['mode']),
+            'mode' => strtolower($config['mode'] ?? 'sandbox'),
             'sandbox' => [
-                'client_id' => $config['mode'] === 'sandbox' ? $config['client_id'] : '',
-                'client_secret' => $config['mode'] === 'sandbox' ? $config['secret'] : '',
+                'client_id' => $config['mode'] === 'sandbox' ? ($config['client_id'] ?? '') : '',
+                'client_secret' => $config['mode'] === 'sandbox' ? ($config['secret'] ?? '') : '',
             ],
             'live' => [
-                'client_id' => $config['mode'] === 'live' ? $config['client_id'] : '',
-                'client_secret' => $config['mode'] === 'live' ? $config['secret'] : '',
+                'client_id' => $config['mode'] === 'live' ? ($config['client_id'] ?? '') : '',
+                'client_secret' => $config['mode'] === 'live' ? ($config['secret'] ?? '') : '',
             ],
-            'currency' => $config['currency'] ?? 'EUR',
+            'currency' => $config['currency'] ?? $currencyCode,
         ];
 
-        // Inyectar config en tiempo de ejecución
         config([
             'paypal.mode' => $paypalConfig['mode'],
             'paypal.sandbox.client_id' => $paypalConfig['sandbox']['client_id'],
@@ -97,35 +139,30 @@ class PaypalOrderController extends Controller
             'paypal.currency' => $paypalConfig['currency'],
         ]);
 
-        
-
         $paypalFullConfig = [
             'mode' => $paypalConfig['mode'],
             'sandbox' => [
-                'client_id'     => $paypalConfig['sandbox']['client_id'],
+                'client_id' => $paypalConfig['sandbox']['client_id'],
                 'client_secret' => $paypalConfig['sandbox']['client_secret'],
-                'app_id'        => '', // opcional
+                'app_id' => '',
             ],
             'live' => [
-                'client_id'     => $paypalConfig['live']['client_id'],
+                'client_id' => $paypalConfig['live']['client_id'],
                 'client_secret' => $paypalConfig['live']['client_secret'],
-                'app_id'        => '', // opcional
+                'app_id' => '',
             ],
             'payment_action' => 'Sale',
-            'currency'       => $paypalConfig['currency'],
-            'notify_url'     => '', // opcional
-            'locale'         => 'en_US',
-            'validate_ssl'   => true,
+            'currency' => $paypalConfig['currency'],
+            'notify_url' => '',
+            'locale' => 'en_US',
+            'validate_ssl' => true,
         ];
-
-        // dd($paypalFullConfig);
 
         $provider = new PayPalClient;
         $provider->setApiCredentials($paypalFullConfig);
-
         $provider->getAccessToken();
 
-        $response = $provider->createOrder([
+        $createOrderPayload = [
             'intent' => 'CAPTURE',
             'application_context' => [
                 'return_url' => route('paypal.success'),
@@ -133,34 +170,48 @@ class PaypalOrderController extends Controller
             ],
             'purchase_units' => [[
                 'amount' => [
-                    'currency_code' => 'EUR',
-                    'value' => number_format($total, 2, '.', ''),
-                ]
-            ]]
-        ]);
+                    'currency_code' => $currencyCode,
+                    'value' => number_format($total, 2, '.', ''), // total con comisión
+                    'breakdown' => [
+                        'item_total' => [
+                            'currency_code' => $currencyCode,
+                            'value' => number_format($item_total, 2, '.', ''),
+                        ],
+                        'tax_total' => [
+                            'currency_code' => $currencyCode,
+                            'value' => number_format($tax_total, 2, '.', ''),
+                        ],
+                        'shipping' => [
+                            'currency_code' => $currencyCode,
+                            'value' => number_format($shipping, 2, '.', ''),
+                        ],
+                        'handling' => [ // 👈 aquí guardamos la comisión como "handling"
+                            'currency_code' => $currencyCode,
+                            'value' => number_format($paypalFee, 2, '.', ''),
+                        ],
+                    ],
+                ],
+                'items' => $paypalItems,
+            ]],
+        ];
 
-        // dd($response);
+        $response = $provider->createOrder($createOrderPayload);
 
-        if (isset($response['id']) && $response['status'] === 'CREATED') {
-            $currency = \App\Models\Currency::where('code', $paypalFullConfig['currency'])->first();
-
-            session()->put('checkout_data', [
-                'address_id'    => $request->address_id,
-                'user_comment'  => $request->user_comment,
-                'totals'        => compact('subtotal', 'shipping', 'tax', 'total'),
-                'payment_id'    => $response['id'],
-                'currency_id'   => optional($currency)->id ?? 1, // usa 1 como fallback si no se encuentra
-            ]);
-
-            // Guarda los datos en cache 30 min usando el payment_id como key
+        if (isset($response['id']) && ($response['status'] === 'CREATED' || $response['status'] === 'APPROVED')) {
             Cache::put('paypal_checkout_' . $response['id'], [
-                'address_id'    => $request->address_id,
-                'user_comment'  => $request->user_comment,
-                'totals'        => compact('subtotal', 'shipping', 'tax', 'total'),
-                'payment_id'    => $response['id'],
-                'currency_id'   => optional($currency)->id ?? 1,
+                'address_id' => $request->address_id,
+                'user_comment' => $request->user_comment,
+                'totals' => [
+                    'item_total' => number_format($item_total, 2, '.', ''),
+                    'tax_total' => number_format($tax_total, 2, '.', ''),
+                    'shipping' => number_format($shipping, 2, '.', ''),
+                    'paypal_fee' => number_format($paypalFee, 2, '.', ''), // lo guardamos para mostrarlo en waiting room
+                    'total' => number_format($total, 2, '.', ''),
+                ],
+                'items' => $checkoutItems,
+                'currency_id' => optional($currency)->id ?? 1,
             ], now()->addMinutes(30));
-            
+
             foreach ($response['links'] as $link) {
                 if ($link['rel'] === 'approve') {
                     return redirect()->away($link['href']);
@@ -168,193 +219,198 @@ class PaypalOrderController extends Controller
             }
         }
 
-        return redirect()->route('checkout.index')->with('error', 'O pagamento pelo PayPal não pôde ser iniciado.');
+        return redirect()->route('checkout.index')->with('error', 'El pago por PayPal no pudo iniciarse.');
     }
 
     public function paypalSuccess(Request $request)
     {
-        // Buscar método de pago
         $method = PaymentMethod::where('code', 'paypal')->first();
-
         if (!$method) {
-            return redirect()->route('checkout')->with('error', 'Método de pagamento PayPal não configurado.');
+            return redirect()->route('checkout.index')->with('error', 'Método PayPal no configurado.');
         }
-
-        // Convertir JSON a array
-        $config = is_string($method->config) ? json_decode($method->config, true) : (array) $method->config;
-
-        // Validar campos necesarios
+        $config = is_string($method->config) ? json_decode($method->config, true) : (array)$method->config;
         if (empty($config['client_id']) || empty($config['secret']) || empty($config['mode'])) {
-            return redirect()->route('checkout')->with('error', 'As configurações do PayPal são inválidas ou incompletas.');
+            return redirect()->route('checkout.index')->with('error', 'Configuración PayPal incompleta.');
         }
 
-        $mode = strtolower($config['mode']); // sandbox o live
-
-        if (!in_array($mode, ['sandbox', 'live'])) {
-            return redirect()->route('checkout')->with('error', 'O modo PayPal deve ser "sandbox" ou "ao vivo".');
-        }
-
-        // Preparar configuración completa para el SDK
+        $mode = strtolower($config['mode']);
         $paypalFullConfig = [
             'mode' => $mode,
             'sandbox' => [
-                'client_id'     => $mode === 'sandbox' ? $config['client_id'] : '',
+                'client_id' => $mode === 'sandbox' ? $config['client_id'] : '',
                 'client_secret' => $mode === 'sandbox' ? $config['secret'] : '',
-                'app_id'        => '',
+                'app_id' => '',
             ],
             'live' => [
-                'client_id'     => $mode === 'live' ? $config['client_id'] : '',
+                'client_id' => $mode === 'live' ? $config['client_id'] : '',
                 'client_secret' => $mode === 'live' ? $config['secret'] : '',
-                'app_id'        => '',
+                'app_id' => '',
             ],
             'payment_action' => 'Sale',
-            'currency'       => $config['currency'] ?? 'USD',
-            'notify_url'     => '', // Si tienes un webhook, ponlo aquí
-            'locale'         => 'es_ES',
-            'validate_ssl'   => true,
+            'currency' => $config['currency'] ?? 'EUR',
+            'notify_url' => '',
+            'locale' => 'es_ES',
+            'validate_ssl' => true,
         ];
 
-        // Aplicar configuración en tiempo de ejecución
         config([
-            'paypal.mode'                    => $paypalFullConfig['mode'],
-            'paypal.sandbox.client_id'      => $paypalFullConfig['sandbox']['client_id'],
-            'paypal.sandbox.client_secret'  => $paypalFullConfig['sandbox']['client_secret'],
-            'paypal.live.client_id'         => $paypalFullConfig['live']['client_id'],
-            'paypal.live.client_secret'     => $paypalFullConfig['live']['client_secret'],
-            'paypal.currency'               => $paypalFullConfig['currency'],
+            'paypal.mode' => $paypalFullConfig['mode'],
+            'paypal.sandbox.client_id' => $paypalFullConfig['sandbox']['client_id'],
+            'paypal.sandbox.client_secret' => $paypalFullConfig['sandbox']['client_secret'],
+            'paypal.live.client_id' => $paypalFullConfig['live']['client_id'],
+            'paypal.live.client_secret' => $paypalFullConfig['live']['client_secret'],
+            'paypal.currency' => $paypalFullConfig['currency'],
         ]);
 
-        // Inicializar cliente PayPal
         $provider = new PayPalClient;
         $provider->setApiCredentials(config('paypal'));
         $provider->getAccessToken();
 
         $response = $provider->capturePaymentOrder($request->token);
 
+        if (!isset($response['status'])) {
+            Log::error('Respuesta PayPal inesperada en capture', ['response' => $response]);
+            return redirect()->route('checkout.index')->with('error', 'No fue posible verificar el pago con PayPal.');
+        }
 
-        if (isset($response['status']) && $response['status'] === 'COMPLETED') {
-        Log::debug('🟢 Estado PayPal COMPLETED detectado.', ['status' => $response['status']]);
+        if ($response['status'] !== 'COMPLETED') {
+            Log::warning('Estado PayPal no completado', ['status' => $response['status'], 'response' => $response]);
+            // Puedes permitir pending y mostrar mensaje o tratarlo como error
+            return redirect()->route('checkout.index')->with('error', 'El pago no se completó.');
+        }
 
+        // Recuperar checkoutData de cache
         $checkoutData = Cache::get('paypal_checkout_' . $request->token);
-
         if (!$checkoutData) {
-            Log::debug('🔴 checkout_data no disponible ni en sesión ni en cache.');
-            return redirect()->route('checkout.index')->with('error', 'Não foi possível recuperar as informações de pagamento.');
+            Log::error('checkout_data no encontrado en cache al confirmar PayPal', ['token' => $request->token]);
+            return redirect()->route('checkout.index')->with('error', 'No se pudo recuperar la información del pago.');
         }
 
         DB::beginTransaction();
-
         try {
-            // Crear orden
+            // Extraer valores desde response (uso data_get para evitar notices)
+            $purchaseUnit = data_get($response, 'purchase_units.0', []);
+            $capture = data_get($purchaseUnit, 'payments.captures.0', $response); // fallback a root si estructura distinta
+
+            // Tax informado por PayPal (si lo provee)
+            $paypalTax = (float) data_get($capture, 'amount.breakdown.tax_total.value') 
+                        ?? (float) data_get($purchaseUnit, 'amount.breakdown.tax_total.value')
+                        ?? (float) ($checkoutData['totals']['tax_total'] ?? 0);
+
+            // PayPal fee (puede estar en seller_receivable_breakdown)
+            $paypalFee = null;
+            if (data_get($capture, 'seller_receivable_breakdown.paypal_fee.value') !== null) {
+                $paypalFee = (float) data_get($capture, 'seller_receivable_breakdown.paypal_fee.value');
+            } elseif (data_get($capture, 'seller_receivable_breakdown.paypal_fee') !== null) {
+                $paypalFee = (float) data_get($capture, 'seller_receivable_breakdown.paypal_fee');
+            } else {
+                // fallback: si no viene, estimar o 0
+                $paypalFee = 0.00;
+            }
+
+            $currency = \App\Models\Currency::where('code', 'EUR')->first();
+
             $order = \App\Models\Order::create([
-                'user_id'          => Auth::id(),
-                'user_address_id'  => $checkoutData['address_id'],
-                'subtotal'         => $checkoutData['totals']['subtotal'],
-                'shipping_cost'    => $checkoutData['totals']['shipping'],
-                'tax'              => $checkoutData['totals']['tax'],
-                'total'            => $checkoutData['totals']['total'],
-                'status'           => 'paid',
-                'payment_status'   => 'paid',
-                'payment_method'   => 'paypal',
-                'paid_at'          => now(),
-                'user_comment'     => $checkoutData['user_comment'] ?? null,
-                'currency_id'      => $checkoutData['currency_id'],
+                'user_id' => Auth::id(),
+                'user_address_id' => $checkoutData['address_id'],
+                'subtotal' => $checkoutData['totals']['item_total'],
+                'shipping_cost' => $checkoutData['totals']['shipping'],
+                'tax' => $checkoutData['totals']['tax_total'], // 👈 lo que calculaste en tu tienda
+                'total' => $checkoutData['totals']['total'],   // 👈 lo que calculaste en tu tienda
+                'status' => 'paid',
+                'payment_status' => 'paid',
+                'payment_method' => 'PayPal',
+                'paid_at' => now(),
+                'user_comment' => $checkoutData['user_comment'] ?? null,
+                'currency_id' => $currency->id,
+                // 📌 valores reales desde PayPal
+                'payment_provider_fee' => $paypalFee,
+                'payment_provider_tax' => $paypalTax,
+                'payment_provider_total' => (float) data_get($capture, 'amount.value'),
+                'payment_provider_currency' => data_get($capture, 'amount.currency_code', $paypalFullConfig['currency']),
+                'payment_provider_id' => $response['id'] ?? $request->token,
+                'payment_provider_raw' => json_encode($response),
             ]);
 
-            // Guardar ítems de la orden
-            foreach (Auth::user()->cartItems as $item) {
-                $inventory = \App\Models\ProductInventory::find($item->inventory_id);
-
-                if (!$inventory) {
-                    throw new \Exception('Inventario no encontrado para el producto: ' . $item->product->name);
+            // Crear order_items usando los datos guardados en cache (para garantizar igualdad con PayPal)
+            foreach ($checkoutData['items'] as $it) {
+                // Si necesitas verificar stock, hazlo aquí (similar a lo que ya tenías)
+                $inventory = \App\Models\ProductInventory::find($it['inventory_id']);
+                if ($inventory && $inventory->quantity < $it['quantity']) {
+                    throw new \Exception('No hay suficiente stock para el producto: ' . $it['name']);
+                }
+                if ($inventory) {
+                    $inventory->quantity -= $it['quantity'];
+                    $inventory->save();
                 }
 
-                // Verificar stock disponible
-                if ($inventory->quantity < $item->quantity) {
-                    throw new \Exception('No hay suficiente stock para el producto: ' . $item->product->name);
-                }
-
-                // Descontar stock
-                $inventory->quantity -= $item->quantity;
-                $inventory->save();
-
-                // Crear ítem de la orden
                 $order->items()->create([
-                    'user_id'      => Auth::id(),
-                    'product_id'   => $item->product_id,
-                    'inventory_id' => $item->inventory_id,
-                    'label_item'   => $item->variant_label ?? null,
-                    'quantity'     => $item->quantity,
-                    'price_unit'   => $item->product->price,
-                    'total'        => $item->subtotal,
+                    'user_id' => Auth::id(),
+                    'product_id' => $it['product_id'],
+                    'inventory_id' => $it['inventory_id'],
+                    'label_item' => $it['name'],
+                    'quantity' => $it['quantity'],
+                    'price_unit' => $it['price_unit'],
+                    'total' => $it['subtotal'],
+                    'tax_id' => null,
+                    'tax_rate' => $it['tax_rate'],
+                    'tax_amount' => $it['tax_amount'], // impuesto calculado en tu tienda
+                    'provider_tax_amount' => $it['provider_tax_amount'] ?? null, // impuesto real que informó PayPal
                 ]);
             }
 
-            // Registrar aceptación de términos
+            // terms acceptance, invoice, mails, logs (igual que antes)
             \App\Models\TermAcceptance::create([
-                'user_id'        => Auth::id(),
-                'accepted_at'    => now(),
-                'ip_address'     => $request->ip(),
-                'terms_version'  => 'v1.0',
+                'user_id' => Auth::id(),
+                'accepted_at' => now(),
+                'ip_address' => $request->ip(),
+                'terms_version' => 'v1.0',
             ]);
 
-            // Crear factura
             $invoice = \App\Models\InvoiceStore::create([
-                'user_id'         => Auth::id(),
-                'order_id'        => $order->id,
-                'invoice_number'  => strtoupper(Str::random(10)),
-                'client_name'     => Auth::user()->name,
-                'client_email'    => Auth::user()->email,
-                'billing_address' => optional($order->address)->fullAddress(), // Previene el error si es null
-                'amount'          => $order->total,
-                'currency'        => $paypalFullConfig['currency'],
-                'payment_method'  => 'paypal',
-                'status'          => 'paid',
-                'issue_date'      => now()->toDateString(),
-                'due_date'        => now()->addDays(5)->toDateString(),
+                'user_id' => Auth::id(),
+                'order_id' => $order->id,
+                'invoice_number' => strtoupper(Str::random(10)),
+                'client_name' => Auth::user()->name,
+                'client_email' => Auth::user()->email,
+                'billing_address' => optional($order->address)->fullAddress(),
+                'amount' => $order->total,
+                'currency' => $paypalFullConfig['currency'],
+                'payment_method' => 'paypal',
+                'status' => 'paid',
+                'issue_date' => now()->toDateString(),
+                'due_date' => now()->addDays(5)->toDateString(),
             ]);
 
-            $invoice->load('order.items');
+            Mail::to(Auth::user()->email)->send(new InvoicePaid($order, $invoice));
 
-            // Enviar correo
-            Mail::to(Auth::user()->email)->send(new InvoicePaid($invoice->order, $invoice));
-
-
-            // Historial de estado
             $order->statusHistories()->create([
-                'status'      => 'paid',
-                'description' => 'Pagamento confirmado via PayPal.',
-                'changed_at'  => now(),
+                'status' => 'paid',
+                'description' => 'Pago confirmado vía PayPal.',
+                'changed_at' => now(),
             ]);
 
-            // Registro de actividad
             \App\Models\ActivityLog::create([
-                'user_id'     => Auth::id(),
-                'action'      => 'Pedido pago',
-                'description' => 'O pedido foi pago com sucesso via PayPal.',
+                'user_id' => Auth::id(),
+                'action' => 'Pedido pagado',
+                'description' => 'Pedido pagado con PayPal.',
             ]);
+            
 
             // Limpiar carrito
-            /** @var \App\Models\User $user */
-            $user = Auth::user();
-            $user->cartItems()->delete();
+            Auth::user()->cartItems()->delete();
 
             DB::commit();
 
-            return redirect()->route('paypal.thanks')->with('success', 'Pagamento efetuado com sucesso. Obrigado pela sua compra.');
+            // Borrar cache
+            Cache::forget('paypal_checkout_' . $request->token);
 
+            return redirect()->route('paypal.thanks')->with('success', 'Pago efectuado con éxito.');
         } catch (\Exception $e) {
-                    // dd($e);
-                    DB::rollBack();
-                    Log::error('❌ Erro ao salvar pedido após pagamento via PayPal.', ['exception' => $e]);
-                    return redirect()->route('checkout.index')->with('error', 'Erro ao salvar dados do pedido: ' . $e->getMessage());
-                }
+            DB::rollBack();
+            Log::error('Error al guardar pedido tras PayPal: ' . $e->getMessage(), ['exception' => $e]);
+            return redirect()->route('checkout.index')->with('error', 'Error al guardar el pedido: ' . $e->getMessage());
         }
-
-        // Si el estado no es COMPLETED
-        // Log::debug('⚠️ Estado PayPal no es COMPLETED.', ['status' => $response['status'] ?? 'no disponible']);
-        return redirect()->route('checkout.index')->with('error', 'O pagamento não pôde ser concluído com o PayPal.');
-
     }
 
     public function webhook(Request $request)

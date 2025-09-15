@@ -42,66 +42,116 @@ class StripeOrderController extends Controller
             'description' => 'O usuário foi redirecionado para o Stripe.',
         ]);
 
-        $cartItems = Auth::user()->cartItems;
-        $subtotal = $cartItems->sum(fn($item) => $item->subtotal);
+        $cartItems = Auth::user()->cartItems()->with('product', 'product.tax')->get();
+        if ($cartItems->isEmpty()) {
+            return redirect()->route('checkout.index')->with('error', 'El carrito está vacío.');
+        }
+
+        $subtotal = $cartItems->sum(fn($i) => $i->subtotal);
+        $iva      = $cartItems->sum(fn($i) => $i->tax_amount);
         $shipping = 0;
-        $tax = $subtotal * 0;
-        $total = $subtotal + $shipping + $tax;
+        $total    = $subtotal + $iva + $shipping;
 
         $method = PaymentMethod::where('code', 'stripe')->first();
-
         if (!$method) {
             return redirect()->route('checkout.index')->with('error', 'Método de pagamento não encontrado.');
         }
 
-        // Conversión segura del campo config
-        if (is_string($method->config)) {
-            $config = json_decode($method->config, true);
-        } elseif (is_array($method->config)) {
-            $config = $method->config;
-        } elseif (is_object($method->config)) {
-            $config = (array) $method->config;
-        } else {
-            $config = [];
-        }
-
+        // Safe config parse
+        $config = is_string($method->config) ? json_decode($method->config, true) : (array) $method->config;
         if (empty($config['secret_key']) || empty($config['public_key'])) {
             return redirect()->route('checkout.index')->with('error', 'Configurações Stripe inválidas.');
         }
 
         Stripe::setApiKey($config['secret_key']);
 
+        // Construir line_items y asociar tax_rates de Stripe
         $lineItems = [];
+
         foreach ($cartItems as $item) {
-            $lineItems[] = [
+            // precio base por unidad (sin IVA)
+            $unitBase = $item->subtotal / $item->quantity;
+            $unitBaseCents = intval(round($unitBase * 100));
+
+            // porcentaje de IVA (dinámico desde product->tax->rate)
+            $taxPercent = $item->product->tax->rate ?? 0;
+
+            $taxRateId = null;
+            if ($taxPercent > 0) {
+                // Intentar buscar un TaxRate existente en Stripe con ese porcentaje (limitado a 100)
+                try {
+                    $existing = \Stripe\TaxRate::all(['limit' => 100]);
+                    foreach ($existing->data as $tr) {
+                        // comparar porcentajes (usar float para evitar problemas de tipo)
+                        if ((float)$tr->percentage === (float)$taxPercent && $tr->inclusive === false) {
+                            $taxRateId = $tr->id;
+                            break;
+                        }
+                    }
+                } catch (\Exception $e) {
+                    // si falla la lista, seguiremos y crearemos uno nuevo (lo atrapamos después)
+                    $taxRateId = null;
+                }
+
+                // Si no existe, crear uno nuevo (puedes añadir country/description/metadata según necesites)
+                if (!$taxRateId) {
+                    try {
+                        $tr = \Stripe\TaxRate::create([
+                            'display_name' => 'IVA',
+                            'description'  => 'Impuesto sobre el valor añadido',
+                            'percentage'   => (float)$taxPercent,
+                            'inclusive'    => false,
+                            // 'country' => 'ES', // opcional
+                        ]);
+                        $taxRateId = $tr->id;
+                    } catch (\Exception $e) {
+                        // si falla la creación, omitimos tax para evitar crash; loguea para depurar
+                        \Log::error('No se pudo crear TaxRate Stripe: ' . $e->getMessage());
+                        $taxRateId = null;
+                    }
+                }
+            }
+
+            $li = [
                 'price_data' => [
                     'currency' => 'eur',
                     'product_data' => [
                         'name' => $item->product->name,
                     ],
-                    'unit_amount' => intval($item->product->price * 100),
+                    'unit_amount' => $unitBaseCents, // **sin IVA**: Stripe calculará la taxa usando tax_rates
                 ],
                 'quantity' => $item->quantity,
             ];
+
+            if ($taxRateId) {
+                $li['tax_rates'] = [$taxRateId];
+            }
+
+            $lineItems[] = $li;
         }
 
         $currency = Currency::where('code', 'EUR')->first();
 
         $checkoutData = [
-            'address_id'    => $request->address_id,
-            'user_comment'  => $request->user_comment,
-            'totals'        => compact('subtotal', 'shipping', 'tax', 'total'),
-            'currency_id'   => optional($currency)->id ?? 1,
+            'address_id'   => $request->address_id,
+            'user_comment' => $request->user_comment,
+            'totals'       => [
+                'subtotal' => $subtotal,
+                'iva'      => $iva,
+                'shipping' => $shipping,
+                'total'    => $total,
+            ],
+            'currency_id'  => optional($currency)->id ?? 1,
         ];
 
         $session = Session::create([
             'payment_method_types' => ['card'],
-            'line_items' => $lineItems,
-            'mode' => 'payment',
-            'success_url' => route('stripe.store.success') . '?session_id={CHECKOUT_SESSION_ID}',
-            'cancel_url' => route('stripe.store.cancel'),
-            'metadata' => [
-                'user_id' => Auth::id(),
+            'line_items'           => $lineItems,
+            'mode'                 => 'payment',
+            'success_url'          => route('stripe.store.success') . '?session_id={CHECKOUT_SESSION_ID}',
+            'cancel_url'           => route('stripe.store.cancel'),
+            'metadata'             => [
+                'user_id'    => Auth::id(),
                 'address_id' => $request->address_id,
             ],
         ]);
@@ -122,13 +172,28 @@ class StripeOrderController extends Controller
 
         DB::beginTransaction();
         try {
+            // Volver a traer los items del carrito del usuario
+            $cartItems = Auth::user()->cartItems;
+
+            // Calcular el IVA total
+            $ivaTotal = $cartItems->sum(function ($item) {
+                $taxRate = $item->product->tax->rate ?? 0;
+                return $item->subtotal * ($taxRate / 100);
+            });
+
+            // ✅ Recalcular el total real con IVA incluido
+            $total = $checkoutData['totals']['subtotal']
+                    + $checkoutData['totals']['shipping']
+                    + $ivaTotal;
+
+            // Crear orden
             $order = \App\Models\Order::create([
                 'user_id' => Auth::id(),
                 'user_address_id' => $checkoutData['address_id'],
                 'subtotal' => $checkoutData['totals']['subtotal'],
                 'shipping_cost' => $checkoutData['totals']['shipping'],
-                'tax' => $checkoutData['totals']['tax'],
-                'total' => $checkoutData['totals']['total'],
+                'tax' => $ivaTotal,
+                'total' => $total, // ✅ ahora correcto
                 'status' => 'paid',
                 'payment_status' => 'paid',
                 'payment_method' => 'Stripe',
@@ -138,7 +203,7 @@ class StripeOrderController extends Controller
             ]);
 
             // ✅ Descontar stock antes de crear los ítems
-            foreach (Auth::user()->cartItems as $item) {
+            foreach ($cartItems as $item) {
                 $inventory = \App\Models\ProductInventory::find($item->inventory_id);
 
                 if (!$inventory) {
@@ -153,6 +218,9 @@ class StripeOrderController extends Controller
                 $inventory->quantity -= $item->quantity;
                 $inventory->save();
 
+                // obtener el impuesto desde la relación con el producto
+                $tax = $item->product->tax ?? null;
+
                 // Crear ítem de la orden
                 $order->items()->create([
                     'user_id' => Auth::id(),
@@ -162,9 +230,13 @@ class StripeOrderController extends Controller
                     'quantity' => $item->quantity,
                     'price_unit' => $item->product->price,
                     'total' => $item->subtotal,
+                    'tax_id' => $tax?->id,
+                    'tax_rate' => $tax?->rate ?? 0,
+                    'tax_amount' => $item->subtotal * (($tax?->rate ?? 0) / 100),
                 ]);
             }
 
+            // Crear factura
             $invoice = InvoiceStore::create([
                 'user_id' => Auth::id(),
                 'order_id' => $order->id,
@@ -197,9 +269,7 @@ class StripeOrderController extends Controller
             ]);
 
             // Limpiar carrito
-            /** @var \App\Models\User $user */
-            $user = Auth::user();
-            $user->cartItems()->delete();
+            Auth::user()->cartItems()->delete();
 
             DB::commit();
 

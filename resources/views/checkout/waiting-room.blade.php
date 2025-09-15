@@ -47,22 +47,31 @@
                             </div>
                             {{-- 👇 precio final con IVA incluido --}}
                             <p class="text-[#4B0D0D] font-semibold">
-                                € {{ number_format($item->total_with_tax, 2) }}
+                                € {{ number_format($subtotal, 2) }}
                             </p>
                         </div>
                     @endforeach
                 </div>
 
                 <div class="mt-6 text-right space-y-1">
-                    <p class="text-[#4B0D0D] text-base">Subtotal: € {{ number_format($subtotal, 2) }}</p>
-                    <p class="text-[#4B0D0D] text-base">IVA: € {{ number_format($iva, 2) }}</p>
-
-                    @if($paymentTax > 0)
-                        <p class="text-[#4B0D0D] text-base">
-                            Taxa de processamento ({{ ucfirst($paymentMethod) }}): € {{ number_format($paymentTax, 2) }}
+                    @if ($paymentMethod === 'mollie')
+                        <p class="text-[#4B0D0D] text-base">IVA: € {{ number_format($iva, 2) }}</p>
+                        <p class="text-[#4B0D0D] text-base">Subtotal: € {{ number_format($subtotal, 2) }}</p>
+                    @endif
+                    @if ($paymentMethod === 'paypal')
+                        <p class="text-[#4B0D0D] text-base">IVA: € {{ number_format($iva, 2) }}</p>
+                        <p class="text-[#4B0D0D] text-base">Subtotal: € {{ number_format($item->total_with_tax, 2) }}</p>
+                    @endif
+                    @if ($paymentMethod === 'stripe')
+                        <p class="text-[#4B0D0D] text-base">Subtotal: € {{ number_format($subtotal, 2) }}</p>
+                        <p class="text-[#4B0D0D] text-base">IVA: € {{ number_format($iva, 2) }}</p>
+                    @endif
+                    
+                    @if ($paymentMethod === 'paypal')
+                        <p class="text-[#4B0D0D] text-base">    
+                            Tarifa PayPal: € {{ number_format($paypalFee, 2) }}
                         </p>
                     @endif
-
                     <p class="text-lg font-bold text-[#4B0D0D]">
                         Total a pagar: € {{ number_format($finalTotal, 2) }}
                     </p>

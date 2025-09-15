@@ -24,6 +24,12 @@ class Order extends Model
         'paid_at',
         'cancelled_at',
         'shipped_at',
+        'payment_provider_fee',
+        'payment_provider_tax',
+        'payment_provider_total',
+        'payment_provider_currency',
+        'payment_provider_id',
+        'payment_provider_raw',
     ];
 
 

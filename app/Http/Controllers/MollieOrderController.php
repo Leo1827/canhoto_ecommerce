@@ -36,12 +36,14 @@ class MollieOrderController extends Controller
             'description' => 'O usuário foi redirecionado para o Mollie.',
         ]);
 
-        $cartItems = Auth::user()->cartItems;
-        $subtotal = $cartItems->sum(fn($item) => $item->subtotal);
-        $shipping = 0;
-        $tax = $subtotal * 0;
-        $total = $subtotal + $shipping + $tax;
+        // ⚡ Usamos los datos de sesión calculados en waitingRoom
+        $checkoutData = session('checkout_data', []);
+        $totals = $checkoutData['totals'] ?? [];
 
+        $subtotal = $totals['subtotal'] ?? 0;
+        $iva      = $totals['iva'] ?? 0;
+        $total    = $totals['total_base'] ?? ($subtotal + $iva); // Producto + IVA
+        $shipping = 0; // si más adelante tienes envío, súmalo aquí
 
         $method = PaymentMethod::where('code', 'mollie')->first();
 
@@ -66,7 +68,7 @@ class MollieOrderController extends Controller
         $payment = Mollie::api()->payments->create([
             'amount' => [
                 'currency' => 'EUR',
-                'value' => number_format($total, 2, '.', '')
+                'value' => number_format($total + $shipping, 2, '.', ''),
             ],
             'description' => 'Compre pelo site',
             'redirectUrl' => route('mollie.store.success'),
@@ -76,13 +78,17 @@ class MollieOrderController extends Controller
             ]
         ]);
 
-        // ⚠️ Guarda el ID en la sesión
-         session(['mollie_payment_id' => $payment->id]);
+        session(['mollie_payment_id' => $payment->id]);
 
         Cache::put('mollie_checkout_' . $payment->id, [
             'address_id' => $request->address_id,
             'user_comment' => $request->user_comment,
-            'totals' => compact('subtotal', 'shipping', 'tax', 'total'),
+            'totals' => [
+                'subtotal' => $subtotal,
+                'iva' => $iva,
+                'shipping' => $shipping,
+                'total' => $total + $shipping,
+            ],
             'payment_id' => $payment->id,
             'currency_id' => optional($currency)->id ?? 1,
         ], now()->addMinutes(30));
@@ -116,19 +122,31 @@ class MollieOrderController extends Controller
 
         $payment = Mollie::api()->payments->get($paymentId);
 
+        // 👇 aquí defines la variable
+        $paymentMethodUsed = $payment->method ?? 'mollie';
+
         if ($payment->isPaid()) {
             DB::beginTransaction();
             try {
+                // Volver a traer los items del carrito del usuario
+                $cartItems = Auth::user()->cartItems;
+
+                //Calcular el IVA total
+                $ivaTotal = $cartItems->sum(function ($item) {
+                    $taxRate = $item->product->tax->rate ?? 0;
+                    return $item->subtotal * ($taxRate / 100);
+                });
+
                 $order = \App\Models\Order::create([
                     'user_id' => Auth::id(),
                     'user_address_id' => $checkoutData['address_id'],
                     'subtotal' => $checkoutData['totals']['subtotal'],
                     'shipping_cost' => $checkoutData['totals']['shipping'],
-                    'tax' => $checkoutData['totals']['tax'],
+                    'tax' => $ivaTotal,   // 👈 total IVA de los items
                     'total' => $checkoutData['totals']['total'],
                     'status' => 'paid',
                     'payment_status' => 'paid',
-                    'payment_method' => 'Mollie',
+                    'payment_method' => 'Mollie - ' . ucfirst($paymentMethodUsed),
                     'paid_at' => now(),
                     'user_comment' => $checkoutData['user_comment'] ?? null,
                     'currency_id' => $checkoutData['currency_id'],
@@ -150,7 +168,9 @@ class MollieOrderController extends Controller
                     $inventory->quantity -= $item->quantity;
                     $inventory->save();
 
-                    // Crear ítem de la orden
+                    // obtener el impuesto desde la relación con el producto
+                    $tax = $item->product->tax ?? null;
+
                     $order->items()->create([
                         'user_id' => Auth::id(),
                         'product_id' => $item->product_id,
@@ -159,7 +179,11 @@ class MollieOrderController extends Controller
                         'quantity' => $item->quantity,
                         'price_unit' => $item->product->price,
                         'total' => $item->subtotal,
+                        'tax_id' => $tax?->id,
+                        'tax_rate' => $tax?->rate ?? 0,
+                        'tax_amount' => $item->subtotal * (($tax?->rate ?? 0) / 100),
                     ]);
+
                 }
 
                 $invoice = \App\Models\InvoiceStore::create([
@@ -171,7 +195,7 @@ class MollieOrderController extends Controller
                     'billing_address' => optional($order->address)->fullAddress(),
                     'amount' => $order->total,
                     'currency' => 'EUR',
-                    'payment_method' => 'Mollie',
+                    'payment_method' => 'Mollie - ' . ucfirst($paymentMethodUsed),
                     'status' => 'paid',
                     'issue_date' => now()->toDateString(),
                     'due_date' => now()->addDays(5)->toDateString(),

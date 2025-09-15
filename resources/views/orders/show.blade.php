@@ -91,9 +91,30 @@
                     @endforeach
                 </tbody>
             </table>
+            <!-- Resumen de la Orden -->
+            @php
+                $subtotal = 0;
+                $totalTax = 0;
 
-            <!-- Resumo dos valores -->
+                foreach($order->items as $item) {
+                    $lineSubtotal = $item->price_unit * $item->quantity;
+                    $taxValue     = $item->tax_amount ?? 0;
+
+                    $subtotal += $lineSubtotal;
+                    $totalTax += $taxValue;
+                }
+
+                $totalLocal = $subtotal + $totalTax + ($order->shipping_cost ?? 0);
+
+                $totalReal = strtolower($order->payment_method) === 'paypal' && $order->payment_provider_total
+                    ? $order->payment_provider_total
+                    : $totalLocal;
+            @endphp
+
+            <!-- Resumen de la Orden -->
             <div class="mt-6 border-t pt-4 space-y-1 text-sm">
+
+            <!-- Subtotal e IVA -->
                 <p class="flex justify-between text-gray-700">
                     <span>Subtotal (s/ IVA):</span>
                     <span>€{{ number_format($subtotal, 2) }}</span>
@@ -102,15 +123,33 @@
                     <span>Total IVA:</span>
                     <span>€{{ number_format($totalTax, 2) }}</span>
                 </p>
+
+                <!-- Envío -->
                 <p class="flex justify-between text-gray-700">
-                    <span>Envio:</span>
+                    <span>Envío:</span>
                     <span>€{{ number_format($order->shipping_cost ?? 0, 2) }}</span>
                 </p>
+
+                <!-- Valores PayPal -->
+                @if(strtolower($order->payment_method) === 'paypal' && $order->payment_provider_total)
+                    <p class="flex justify-between text-gray-700">
+                        <span>Comisión PayPal:</span>
+                        <span>€ {{ number_format($order->payment_provider_fee ?? 0, 2) }}</span>
+                    </p>
+                    <p class="flex justify-between text-gray-700">
+                        <span>ID Transacción Paypal:</span>
+                        <span>{{ $order->payment_provider_id }}</span>
+                    </p>
+                @endif
+
+                <!-- Total final -->
                 <p class="flex justify-between text-lg font-bold text-gray-900 mt-2">
                     <span>Total:</span>
-                    <span>€{{ number_format($subtotal + $totalTax + ($order->shipping_cost ?? 0), 2) }}</span>
+                    <span>€{{ number_format($totalReal, 2) }}</span>
                 </p>
+
             </div>
+
         </div>
 
         <div class="bg-white p-6 rounded-2xl shadow-lg mb-6">

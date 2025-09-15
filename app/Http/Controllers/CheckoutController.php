@@ -7,8 +7,6 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\CartItem;
 use App\Models\PaymentMethod;
 use App\Models\UserAddress;
-use App\Models\OrderItem;
-use App\Models\Order;
 
 class CheckoutController extends Controller
 {
@@ -16,14 +14,15 @@ class CheckoutController extends Controller
     {
         $user = Auth::user();
 
-        // traemos los items de la orden activa del usuario
+        // Traemos el carrito
         $cartItems = CartItem::with(['product.tax', 'inventory'])
             ->where('user_id', $user->id)
             ->get()
             ->map(function ($item) {
-                // si ya lo calculaste al guardar en order_items, solo lo lees:
-                $item->tax_rate = $item->product->tax->rate ?? 0;
-                $item->tax_amount = ($item->subtotal * $item->tax_rate) / 100;
+                $rate = $item->product->tax->rate ?? 0;
+                $item->subtotal = $item->quantity * $item->product->price;
+                $item->tax_rate = $rate;
+                $item->tax_amount = ($item->subtotal * $rate) / 100;
                 $item->total_with_tax = $item->subtotal + $item->tax_amount;
                 return $item;
             });
@@ -56,7 +55,7 @@ class CheckoutController extends Controller
 
         $address = UserAddress::find($validated['address_id']);
 
-        // Obtener carrito con producto + tax
+        // Carrito con impuestos
         $cartItems = CartItem::where('user_id', Auth::id())
             ->with('product.tax')
             ->get()
@@ -73,20 +72,24 @@ class CheckoutController extends Controller
                 return $item;
             });
 
-        // Totales globales
+        // Totales base
         $subtotal = $cartItems->sum('subtotal');
         $iva = $cartItems->sum('tax_amount');
-        $total = $subtotal + $iva;
+        $totalBase = $subtotal + $iva; // Producto con IVA incluido
 
-        // Comisión extra de PayPal
-        $paymentTax = 0;
+        // Valores por defecto
+        $paypalFee = 0.00;
+        $finalTotal = $totalBase;
+
         if ($validated['payment_method'] === 'paypal') {
-            $paymentTax = $total * 0.21;
+            // Calcular comisión PayPal
+            $paypalFee = $this->calculatePaypalFee($totalBase);
+
+            // Cliente paga producto + IVA + comisión
+            $finalTotal = $totalBase + $paypalFee;
         }
 
-        $finalTotal = $total + $paymentTax;
-
-        // Guardar en sesión
+        // Guardar en sesión (para que lo lean los controladores de cada pasarela)
         session([
             'checkout_data' => [
                 'address_id' => $validated['address_id'],
@@ -96,7 +99,8 @@ class CheckoutController extends Controller
                 'totals' => [
                     'subtotal' => $subtotal,
                     'iva' => $iva,
-                    'payment_tax' => $paymentTax,
+                    'total_base' => $totalBase,
+                    'paypal_fee' => $paypalFee,
                     'total' => $finalTotal,
                 ],
             ]
@@ -109,10 +113,14 @@ class CheckoutController extends Controller
             'cartItems' => $cartItems,
             'subtotal' => $subtotal,
             'iva' => $iva,
-            'paymentTax' => $paymentTax,
             'finalTotal' => $finalTotal,
+            'paypalFee' => $paypalFee,
         ]);
     }
 
-
+    private function calculatePaypalFee(float $amount): float
+    {
+        // Tarifa estándar PayPal (Europa): 3.49% + 0.35 €
+        return round(($amount * 0.0349) + 0.35, 2);
+    }
 }
