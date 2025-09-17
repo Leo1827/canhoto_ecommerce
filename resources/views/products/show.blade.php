@@ -54,10 +54,11 @@
 
                         <div class="flex flex-col mb-6">
                             <span class="text-2xl md:text-3xl font-bold text-[#4B0D0D]">
-                                €{{ number_format($product->price, 2, ',', '.') }}
+                                €{{ number_format($priceWithTax, 2, ',', '.') }} 
+                                
                             </span>
                             <span class="text-lg text-gray-500">
-                                €{{ number_format($priceWithTax, 2, ',', '.') }} (IVA {{ $taxRate }}%)
+                                €{{ number_format($product->price, 2, ',', '.') }} (IVA {{ $taxRate }}%)
                             </span>
                         </div>
                     </span>

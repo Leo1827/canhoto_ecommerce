@@ -32,9 +32,15 @@
                 </p>
 
                 <div class="flex items-center justify-between">
+                    @php
+                        $taxRate = $product->tax->rate ?? 0;
+                        $priceWithTax = $product->price + ($product->price * ($taxRate / 100));
+                    @endphp
+
                     <span class="text-2xl font-bold text-[#FCD9D9]">
-                        €{{ number_format($product->price, 0, ',', '.') }}
+                        €{{ number_format($priceWithTax, 0, ',', '.') }}
                     </span>
+
                     <a href="{{ route('products.show', $product->slug) }}"
                     class="inline-flex items-center px-4 py-1.5 bg-[#9B1C1C] hover:bg-[#7C1616] rounded-xl text-sm text-white font-semibold transition">
                         Ver Detalhes

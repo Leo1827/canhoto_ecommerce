@@ -38,13 +38,13 @@
     function addressComponent(id, parent) {
         return {
             editing: false,
-            loading: false, // ✅ importante
+            loading: false,
 
             select() {
-                parent.setSelected(id); // ✅ asegúrate que parent fue pasado correctamente
+                parent.setSelected(id); // asegúrate que parent fue pasado correctamente
                 document.getElementById(`address_${id}`).checked = true;
 
-                // ✅ Aquí actualizas el campo hidden en el formulario principal
+                // Aquí actualizas el campo hidden en el formulario principal
                 const hiddenInput = document.getElementById('selected_address_id');
                 if (hiddenInput) {
                     hiddenInput.value = id;
@@ -52,7 +52,7 @@
             },
 
             get selected() {
-                return parent.isSelected(id); // ✅ parent accedido correctamente
+                return parent.isSelected(id); // parent accedido correctamente
             },
 
             updateAddress(e) {

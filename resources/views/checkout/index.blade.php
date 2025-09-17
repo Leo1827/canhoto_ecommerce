@@ -83,12 +83,14 @@
         const submitButton = document.getElementById('checkoutSubmit');
         const paymentRadios = document.querySelectorAll('input[name="payment_method"]');
         const termsCheckbox = document.getElementById('accept_terms');
+        const addressInput = document.getElementById('selected_address_id');
 
         function updateButtonState() {
             const paymentSelected = Array.from(paymentRadios).some(r => r.checked);
             const termsAccepted = termsCheckbox.checked;
+            const addressSelected = addressInput.value !== "";
 
-            if (paymentSelected && termsAccepted) {
+            if (paymentSelected && termsAccepted && addressSelected) {
                 submitButton.disabled = false;
                 submitButton.classList.remove('opacity-50', 'cursor-not-allowed');
             } else {
@@ -103,10 +105,15 @@
 
         termsCheckbox.addEventListener('change', updateButtonState);
 
+        // También escuchar cuando cambie la dirección seleccionada
+        const observer = new MutationObserver(updateButtonState);
+        observer.observe(addressInput, { attributes: true, attributeFilter: ['value'] });
+
         // Ejecutar al cargar
         updateButtonState();
     });
 </script>
+
 
 </x-app-layout>
 
