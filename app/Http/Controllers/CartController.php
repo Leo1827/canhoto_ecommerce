@@ -47,15 +47,19 @@ class CartController extends Controller
             'quantity' => 'required|integer|min:1',
         ]);
 
-        $inventory = ProductInventory::findOrFail($request->inventory_id);
-        $price = $inventory->price;
+        // Traer producto con su IVA
+        $product = \App\Models\Product::with('tax')->findOrFail($request->product_id);
         $quantity = $request->quantity;
 
-        // IVA Portugal (ejemplo fijo 23%)
-        $taxRate = 23;
-        $subtotal = $quantity * $price;
+        // Precio viene de products
+        $price = $product->price;
+        $taxRate = $product->tax->rate ?? 0;
+
+        // Cálculos
+        $subtotal = $price * $quantity;
         $taxAmount = $subtotal * ($taxRate / 100);
 
+        // Buscar si ya existe el item en el carrito
         $cartItem = CartItem::where('user_id', Auth::id())
             ->where('product_id', $request->product_id)
             ->where('inventory_id', $request->inventory_id)
@@ -64,19 +68,16 @@ class CartController extends Controller
         if ($cartItem) {
             $cartItem->quantity += $quantity;
             $cartItem->subtotal = $cartItem->quantity * $price;
-            $cartItem->tax_rate = $taxRate;
-            $cartItem->tax_amount = $cartItem->subtotal * ($taxRate / 100);
+            $cartItem->price_unit = $price;
             $cartItem->save();
         } else {
             CartItem::create([
                 'user_id' => Auth::id(),
                 'product_id' => $request->product_id,
                 'inventory_id' => $request->inventory_id,
-                'price_unit' => $price,
+                'price_unit' => $price,   // precio neto (sin IVA)
                 'quantity' => $quantity,
-                'subtotal' => $subtotal,
-                'tax_rate' => $taxRate,
-                'tax_amount' => $taxAmount,
+                'subtotal' => $subtotal, // solo base
             ]);
         }
 
