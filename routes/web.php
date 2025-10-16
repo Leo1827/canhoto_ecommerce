@@ -120,8 +120,9 @@ Route::middleware(['auth', 'verified', 'userMiddleware', 'hasPlan'])->group(func
 
 // admin routes
 Route::middleware(['auth','adminMiddleware'])->group(function(){
-
+    // Dashboard cards,charts
     Route::get('/admin/dashboard',[AdminController::class,'index'])->name('admin.dashboard');
+
     // CRUD de planes para admin
         Route::get('/admin/plans', [PlansController::class, 'index'])->name('admin.plans.index');
         Route::post('/admin/plans', [PlansController::class, 'store'])->name('admin.plans.store');
