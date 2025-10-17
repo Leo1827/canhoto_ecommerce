@@ -47,6 +47,12 @@ class AdminController extends Controller
         $usuarios = DB::table('users')->count();
         $productos = Product::count();
 
+        // Órdenes recientes
+        $ordenesRecientes = Order::with('user') // Asumiendo relación user() en el modelo Order
+            ->orderByDesc('created_at')
+            ->limit(5)
+            ->get(['id', 'user_id', 'total', 'status', 'created_at']);
+
         return view('admin.dashboard', compact(
             'ventasTotales',
             'ordenes',
@@ -55,7 +61,8 @@ class AdminController extends Controller
             'mesesNombres',
             'valoresVentas',
             'productosNombres',
-            'productosCantidad'
+            'productosCantidad',
+            'ordenesRecientes'
         ));
     }
 }
