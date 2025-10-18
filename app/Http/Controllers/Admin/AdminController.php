@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\User;
+use App\Models\InvoiceStore;
 use App\Models\Product;
 use Illuminate\Support\Facades\DB;
 
@@ -13,9 +14,15 @@ class AdminController extends Controller
     //
     public function index()
     {
+        // Ventas totales del año actual (solo facturas pagadas)
+        $ventasTotales = InvoiceStore::whereYear('issue_date', date('Y'))
+            ->where('status', 'paid')
+            ->sum('amount');
+
         // Ventas totales por mes (últimos 6 meses)
-        $ventasMensuales = Order::selectRaw('MONTH(created_at) as mes, SUM(total) as total')
-            ->whereYear('created_at', date('Y'))
+        $ventasMensuales = InvoiceStore::selectRaw('MONTH(issue_date) as mes, SUM(amount) as total')
+            ->whereYear('issue_date', date('Y'))
+            ->where('status', 'paid')
             ->groupBy('mes')
             ->orderBy('mes')
             ->pluck('total', 'mes')
