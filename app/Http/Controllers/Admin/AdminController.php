@@ -53,6 +53,22 @@ class AdminController extends Controller
             ->limit(5)
             ->get(['id', 'user_id', 'total', 'status', 'created_at']);
 
+        // Alertas de inventario
+        $alertasInventario = DB::table('product_inventories')
+            ->join('products', 'product_inventories.product_id', '=', 'products.id')
+            ->select(
+                'products.name as product_name',
+                'product_inventories.name as variant_name',
+                'product_inventories.quantity',
+                'product_inventories.minimum',
+                'product_inventories.limited'
+            )
+            ->whereNull('product_inventories.deleted_at') // ⬅️ excluye los eliminados
+            ->whereNull('products.deleted_at')            // opcional, si también usas SoftDeletes en productos
+            ->get();
+
+
+
         return view('admin.dashboard', compact(
             'ventasTotales',
             'ordenes',
@@ -62,7 +78,8 @@ class AdminController extends Controller
             'valoresVentas',
             'productosNombres',
             'productosCantidad',
-            'ordenesRecientes'
+            'ordenesRecientes',
+            'alertasInventario'
         ));
     }
 }
