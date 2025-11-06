@@ -51,7 +51,7 @@ class SubscriptionMollieController extends Controller
                 ],
                 "description" => "Suscripción: {$plan->name}",
                 "redirectUrl" => route('mollie.success'),  // NO pasamos payment_id por URL
-                "webhookUrl"  => "https://webhook.site/976c10d1-a6fd-4597-8c6b-1edeb06178fd",
+                "webhookUrl"  => "", // agregar webhook mollie
                 "metadata"    => [
                     "user_id" => Auth::id(),
                     "plan_id" => $plan->id,
