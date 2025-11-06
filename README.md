@@ -4,16 +4,14 @@ Este proyecto es una **plataforma eCommerce monolítica** desarrollada con **Lar
 
 ---
 
-## 🚀 Tecnologías utilizadas
+## ⚙️ Tecnologías Utilizadas
 
-- **Framework:** Laravel 10+  
-- **Autenticación y roles:** Laravel Breeze  
-- **Frontend:** Tailwind CSS  
-- **Base de datos:** MySQL  
-- **Pasarelas de pago:** Stripe, PayPal (ampliable a Mollie, MB Way, Multibanco)  
-- **Arquitectura:** MVC (Modelo–Vista–Controlador)  
-- **Patrón:** Monolítico  
-- **Control de versiones:** Git / GitHub  
+- **Backend:** Laravel 10 (PHP 8+)
+- **Frontend:** Blade + Tailwind CSS / Bootstrap
+- **Base de Datos:** MySQL
+- **Autenticación:** Laravel Breeze / Socialite (Google)
+- **Pasarelas de Pago:** Stripe, PayPal, Mollie
+- **Control de Versiones:** Git / GitHub
 
 ---
 
@@ -54,15 +52,19 @@ Este proyecto es una **plataforma eCommerce monolítica** desarrollada con **Lar
 
 ---
 
-## 🗃️ Estructura de la Base de Datos
+## 🧩 Estructura General de la Base de Datos
+
+La base de datos está organizada en módulos funcionales que agrupan las tablas según su propósito dentro del sistema.
 
 | Módulo | Tablas principales |
 |--------|--------------------|
-| **Usuarios** | users, roles, subscriptions, subscription_history |
-| **Pagos** | user_payments, payment_methods, paypal_orders, stripe_orders |
-| **Facturación** | invoices, currencies |
-| **Tienda** | categories, bodegas, tipos_vino, products, product_inventories, cart_items, orders, orders_items |
-| **Clientes** | customers, addresses, shipping |
+| **Usuarios y Suscripciones** | users, plans, subscriptions, subscription_history, user_payments, payment_methods, currencies |
+| **Pasarelas de Pago** | paypal_orders, stripe_orders, mollie_orders |
+| **Facturación** | invoices, invoices_store, taxes |
+| **Tienda (E-Commerce)** | categories, wineries, regions, wine_types, vintages, conditions, products, product_galleries, product_inventories, product_inventory_variants |
+| **Carrito y Órdenes** | cart_items, orders, order_items, order_status_histories |
+| **Clientes y Direcciones** | customers, user_addresses |
+| **Registros del Sistema** | activity_logs, term_acceptances |
 
 ---
 
@@ -142,3 +144,22 @@ php artisan migrate --seed
 
 5️⃣ Iniciar el servidor
 php artisan serve
+
+📊 Dashboard principal
+
+Incluye:
+
+Estadísticas de ventas y suscripciones.
+Panel de control con métricas globales.
+Gráficas dinámicas de ingresos, clientes y productos.
+
+🧑‍💻 Autor
+Mileer Duban León Rincón
+💼 Desarrollador Backend & Full Stack
+📍 Ibagué - Colombia
+🔗 LinkedIn
+ | GitHub
+
+🏷️ Etiquetas
+
+#Laravel #TailwindCSS #PHP #eCommerce #FullStack #Stripe #PayPal #MySQL #Breeze #MVC #BackendDevelopment
