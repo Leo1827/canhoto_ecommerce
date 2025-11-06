@@ -1,66 +1,144 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 🛍️ Plataforma eCommerce con Suscripciones Mensuales – Laravel
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Este proyecto es una **plataforma eCommerce monolítica** desarrollada con **Laravel**, que integra un sistema de **suscripciones mensuales**, **autenticación con roles**, **pasarelas de pago (PayPal y Stripe)** y un completo **panel de administración** para la gestión de productos, inventario, facturación y clientes.
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## 🚀 Tecnologías utilizadas
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- **Framework:** Laravel 10+  
+- **Autenticación y roles:** Laravel Breeze  
+- **Frontend:** Tailwind CSS  
+- **Base de datos:** MySQL  
+- **Pasarelas de pago:** Stripe, PayPal (ampliable a Mollie, MB Way, Multibanco)  
+- **Arquitectura:** MVC (Modelo–Vista–Controlador)  
+- **Patrón:** Monolítico  
+- **Control de versiones:** Git / GitHub  
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+---
 
-## Learning Laravel
+## ⚙️ Funcionalidades principales
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### 🧍‍♂️ Usuarios y autenticación
+- Registro e inicio de sesión con roles (Administrador y Usuario).
+- Breeze implementado para seguridad, sesiones y middlewares.
+- Al registrarse, el usuario es redirigido a una vista donde debe **comprar la suscripción** antes de acceder a los productos.
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+### 💳 Sistema de suscripción mensual
+- Los usuarios deben tener una **suscripción activa** para ver y comprar productos.
+- Control de estado de suscripción (activa, vencida, cancelada).
+- Administración de **planes** desde el panel de control.
+- Integración con **PayPal** y **Stripe** para pagos recurrentes o únicos.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### 🛒 Tienda online
+- Catálogo de productos visible solo para usuarios con suscripción activa.
+- **Carrito de compras funcional** con gestión de cantidades y total.
+- Creación y seguimiento de órdenes con su respectiva factura.
+- Gestión de envíos y estados de entrega.
 
-## Laravel Sponsors
+### 🧾 Facturación
+- Generación de facturas automáticas después del pago exitoso.
+- Historial de facturación por usuario.
+- Administración de métodos de pago y monedas.
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### 🧠 Panel de administración
+- Dashboard con **estadísticas globales** (ventas, suscripciones, productos, clientes).
+- Módulos de gestión:
+  - Planes de suscripción
+  - Métodos de pago
+  - Historial de pagos
+  - Categorías, bodegas y tipos de vino
+  - Productos e inventario
+  - Clientes y facturación
+  - Envíos y seguimiento de órdenes
 
-### Premium Partners
+---
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+## 🗃️ Estructura de la Base de Datos
 
-## Contributing
+| Módulo | Tablas principales |
+|--------|--------------------|
+| **Usuarios** | users, roles, subscriptions, subscription_history |
+| **Pagos** | user_payments, payment_methods, paypal_orders, stripe_orders |
+| **Facturación** | invoices, currencies |
+| **Tienda** | categories, bodegas, tipos_vino, products, product_inventories, cart_items, orders, orders_items |
+| **Clientes** | customers, addresses, shipping |
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+---
 
-## Code of Conduct
+## 🔄 Flujo funcional del sistema
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+1. **Registro del usuario**  
+   El usuario se registra (Laravel Breeze) → se crea registro en `users`.  
+   Luego, se le solicita adquirir un plan.
 
-## Security Vulnerabilities
+2. **Compra de suscripción**  
+   El usuario selecciona un plan (`plans`) y paga con PayPal o Stripe.  
+   Al confirmar el pago:
+   - Se guarda en `user_payments`
+   - Se crea/actualiza en `subscriptions`
+   - Se genera una `invoice`
+   - Se añade registro en `subscription_history`
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+3. **Acceso a la tienda**  
+   - Solo usuarios con suscripción activa pueden ver productos.
+   - Puede agregar productos al carrito, generar órdenes y pagar.
 
-## License
+4. **Administración (panel admin)**  
+   - El administrador puede gestionar todo el contenido desde un dashboard central.
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+---
+
+## 💰 Pasarelas de pago integradas
+
+| Pasarela | Descripción |
+|-----------|-------------|
+| **Stripe** | Pagos con tarjeta y suscripciones recurrentes. |
+| **PayPal** | Pagos directos y gestión de órdenes. |
+| **Mollie (en desarrollo)** | Compatible con MB Way y Multibanco. |
+
+---
+
+## 🧾 Facturación y Monedas
+
+- **Invoices:** Se genera una factura por cada pago realizado.  
+- **Currencies:** Módulo para gestionar monedas (USD, EUR, COP).  
+- **Historial:** Consultable desde el panel admin y por usuario.
+
+---
+
+## 📦 Tienda e Inventario
+
+- Gestión completa de:
+  - Productos
+  - Categorías
+  - Bodegas
+  - Tipos de vino
+  - Variantes de inventario
+  - Galerías de imágenes
+- Control de stock y precios dinámicos.
+- Reportes y estadísticas en el dashboard.
+
+---
+
+## ⚙️ Instalación y configuración
+
+### 1️⃣ Clonar el repositorio
+```bash
+git clone https://github.com/tuusuario/tienda-suscripcion.git
+cd tienda-suscripcion
+
+2️⃣ Instalar dependencias
+composer install
+npm install && npm run dev
+
+3️⃣ Configurar el entorno
+Copia el archivo .env.example y renómbralo a .env:
+cp .env.example .env
+php artisan key:generate
+
+4️⃣ Ejecutar migraciones y seeders
+php artisan migrate --seed
+
+5️⃣ Iniciar el servidor
+php artisan serve
