@@ -52,21 +52,6 @@ Este proyecto es una **plataforma eCommerce monolítica** desarrollada con **Lar
 
 ---
 
-## 🧩 Estructura General de la Base de Datos
-
-La base de datos está organizada en módulos funcionales que agrupan las tablas según su propósito dentro del sistema.
-
-| Módulo | Tablas principales |
-|--------|--------------------|
-| **Usuarios y Suscripciones** | users, plans, subscriptions, subscription_history, user_payments, payment_methods, currencies |
-| **Pasarelas de Pago** | paypal_orders, stripe_orders, mollie_orders |
-| **Facturación** | invoices, invoices_store, taxes |
-| **Tienda (E-Commerce)** | categories, wineries, regions, wine_types, vintages, conditions, products, product_galleries, product_inventories, product_inventory_variants |
-| **Carrito y Órdenes** | cart_items, orders, order_items, order_status_histories |
-| **Clientes y Direcciones** | customers, user_addresses |
-| **Registros del Sistema** | activity_logs, term_acceptances |
-
----
 
 ## 🔄 Flujo funcional del sistema
 
