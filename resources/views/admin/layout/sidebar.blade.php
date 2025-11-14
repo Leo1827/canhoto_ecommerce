@@ -32,6 +32,11 @@
                 @include('admin.components.main-three-sidebar')
             </x-admin.sidebar.section>
 
+            <!-- Menú 4: Configuracion -->
+            <x-admin.sidebar.section title="Configuracion">
+                @include('admin.components.main-four-sidebar')
+            </x-admin.sidebar.section>
+
             <!-- Logout -->
             <form method="POST" action="{{ route('logout') }}" class="pt-6">
                 @csrf

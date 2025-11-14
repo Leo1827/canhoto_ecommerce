@@ -1,0 +1,1 @@
+<x-admin.sidebar.link route="admin.setting.index" icon="settings" label="Configuracion" />

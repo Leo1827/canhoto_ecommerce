@@ -19,6 +19,7 @@ use App\Http\Controllers\Admin\InvoiceController;
 use App\Http\Controllers\Admin\ShipmentController;
 use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\ActivityLogController;
+use App\Http\Controllers\Admin\SettingController;
 
 // public
 use App\Http\Controllers\ProfileController;
@@ -262,6 +263,10 @@ Route::middleware(['auth','adminMiddleware'])->group(function(){
         Route::delete('admin/customers/{user}/addresses/{address}', [CustomerController::class, 'destroyAddress'])->name('customers.addresses.destroy');
 
     // Logs de actividad
-    Route::get('activity-logs', [ActivityLogController::class, 'index'])->name('admin.activity_logs.index'); 
+        Route::get('activity-logs', [ActivityLogController::class, 'index'])->name('admin.activity_logs.index'); 
+    // CRUD Setting
+        Route::get('/admin/setting', [SettingController::class, 'index'])->name('admin.setting.index');
+        Route::post('/admin/settings/update', [SettingController::class, 'update'])->name('admin.settings.update');
+        Route::delete('/admin/settings/{campo}/delete', [SettingController::class, 'deleteField'])->name('admin.settings.deleteField');
 
 });

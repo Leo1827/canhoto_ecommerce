@@ -24,7 +24,18 @@
             {{-- Logo --}}
             <div class="text-2xl font-serif font-semibold text-gray-900">
                 <a href="/">
-                    <img src="{{ asset('img/logo.png') }}" alt="Canhoto Premium" class="w-[200px]">
+
+                    @if($setting && $setting->logo)
+                        <img src="{{ asset('storage/'.$setting->logo) }}" 
+                            alt="{{ $setting->site_name ?? 'Logo' }}" 
+                            class="w-[200px]">
+                    @else
+                        {{-- Logo por defecto si no hay uno en settings --}}
+                        <img src="{{ asset('img/logo.png') }}" 
+                            alt="Logo" 
+                            class="w-[200px] opacity-50">
+                    @endif
+
                 </a>
             </div>
 
