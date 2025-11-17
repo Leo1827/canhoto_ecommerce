@@ -23,7 +23,7 @@ return new class extends Migration
             $table->timestamp('ends_at')->nullable(); // Fin de la suscripción
             $table->integer('quantity')->default(1); // Cantidad (normalmente 1)
             $table->timestamps(); // created_at y updated_at
-            
+
             // Índices para mejorar búsquedas
             $table->index(['user_id', 'stripe_status']);
         });
